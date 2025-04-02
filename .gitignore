@@ -1,0 +1,41 @@
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor directories and files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# Dependency directories
+/vendor/
+/node_modules/
+
+# Environment files
+.env
+.env.backup
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Composer
+composer.phar
+/vendor/
+
+# Cache and compiled files
+/cache/
+/tmp/
+
+# User uploaded files
+/public/uploads/
+
+# PHPUnit
+/phpunit.xml 
