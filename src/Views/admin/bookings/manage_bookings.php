@@ -100,6 +100,7 @@ ob_start();
                             <th>Phòng</th>
                             <th>Bắt đầu</th>
                             <th>Kết thúc</th>
+                            <th>Mục đích</th>
                             <th>Trạng thái</th>
                             <th>Thao tác</th>
                         </tr>
@@ -115,13 +116,10 @@ ob_start();
                                             $initials = '';
                                             $fullname = '';
 
-                                            // Ưu tiên hiển thị tên giáo viên, nếu không có thì hiển thị tên sinh viên
-                                            if (!empty($booking['teacher_id'])) {
-                                                $fullname = $booking['teacher_fullname'] ?? $booking['teacher_name'];
-                                                $role = 'Giáo viên';
-                                            } elseif (!empty($booking['student_id'])) {
-                                                $fullname = $booking['student_fullname'] ?? $booking['student_name'];
-                                                $role = 'Sinh viên';
+                                            // Hiển thị tên người dùng dựa trên user_id và user_role
+                                            if (!empty($booking['user_id'])) {
+                                                $fullname = $booking['user_fullname'] ?? $booking['user_name'];
+                                                $role = $booking['user_role'] === 'teacher' ? 'Giáo viên' : 'Sinh viên';
                                             }
 
                                             $nameParts = explode(' ', $fullname);
@@ -144,6 +142,7 @@ ob_start();
                                     <td><?= htmlspecialchars($booking['room_name'] ?? '') ?></td>
                                     <td><?= isset($booking['start_time']) ? date('d/m/Y H:i', strtotime($booking['start_time'])) : '' ?></td>
                                     <td><?= isset($booking['end_time']) ? date('d/m/Y H:i', strtotime($booking['end_time'])) : '' ?></td>
+                                    <td><?= htmlspecialchars($booking['purpose'] ?? '') ?></td>
                                     <td>
                                         <?php
                                         $status = strtolower($booking['status'] ?? '');
@@ -195,7 +194,7 @@ ob_start();
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="7" class="text-center">Không có đặt phòng nào được tìm thấy</td>
+                                <td colspan="8" class="text-center">Không có đặt phòng nào được tìm thấy</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>

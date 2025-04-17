@@ -138,11 +138,11 @@ class BookingModel
     public function getBookingsByTeacher($teacherId)
     {
         $stmt = $this->db->prepare("SELECT b.*, r.name AS room_name,
-            u.full_name AS teacher_name
+            u.full_name AS user_name
             FROM bookings b
             JOIN rooms r ON b.room_id = r.id
-            LEFT JOIN users u ON b.teacher_id = u.id
-            WHERE b.teacher_id = ? AND b.status = 'được duyệt'
+            LEFT JOIN users u ON b.user_id = u.id
+            WHERE b.user_id = ? AND b.status = 'được duyệt' AND u.role = 'teacher'
             ORDER BY b.start_time ASC");
         $stmt->execute([$teacherId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -151,13 +151,11 @@ class BookingModel
     public function getBookingsByStudent($studentId)
     {
         $stmt = $this->db->prepare("SELECT b.*, r.name AS room_name,
-            u1.full_name AS teacher_name,
-            u2.full_name AS student_name
+            u.full_name AS user_name
             FROM bookings b
             JOIN rooms r ON b.room_id = r.id
-            LEFT JOIN users u1 ON b.teacher_id = u1.id
-            LEFT JOIN users u2 ON b.student_id = u2.id
-            WHERE b.student_id = ?
+            LEFT JOIN users u ON b.user_id = u.id
+            WHERE b.user_id = ? AND u.role = 'student'
             ORDER BY b.start_time DESC");
         $stmt->execute([$studentId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -166,12 +164,11 @@ class BookingModel
     public function getBookingsByClassCode($classCode)
     {
         $stmt = $this->db->prepare("SELECT b.*, r.name AS room_name,
-            u1.full_name AS teacher_name,
-            u2.full_name AS student_name
+            u.full_name AS user_name,
+            u.role AS user_role
             FROM bookings b
             JOIN rooms r ON b.room_id = r.id
-            LEFT JOIN users u1 ON b.teacher_id = u1.id
-            LEFT JOIN users u2 ON b.student_id = u2.id
+            LEFT JOIN users u ON b.user_id = u.id
             WHERE b.class_code = ? AND b.status = 'được duyệt'
             ORDER BY b.start_time ASC");
         $stmt->execute([$classCode]);
@@ -183,14 +180,12 @@ class BookingModel
         $stmt = $this->db->prepare(
             "SELECT b.*,
                 r.name AS room_name,
-                CASE WHEN u1.full_name IS NOT NULL AND u1.full_name != '' THEN u1.full_name ELSE u1.username END AS teacher_name,
-                u1.full_name AS teacher_fullname,
-                CASE WHEN u2.full_name IS NOT NULL AND u2.full_name != '' THEN u2.full_name ELSE u2.username END AS student_name,
-                u2.full_name AS student_fullname
+                CASE WHEN u.full_name IS NOT NULL AND u.full_name != '' THEN u.full_name ELSE u.username END AS user_name,
+                u.full_name AS user_fullname,
+                u.role AS user_role
          FROM bookings b
          JOIN rooms r ON b.room_id = r.id
-         LEFT JOIN users u1 ON b.teacher_id = u1.id
-         LEFT JOIN users u2 ON b.student_id = u2.id"
+         LEFT JOIN users u ON b.user_id = u.id"
         );
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -201,14 +196,12 @@ class BookingModel
         $stmt = $this->db->prepare(
             "SELECT b.*,
                 r.name AS room_name,
-                CASE WHEN u1.full_name IS NOT NULL AND u1.full_name != '' THEN u1.full_name ELSE u1.username END AS teacher_name,
-                u1.full_name AS teacher_fullname,
-                CASE WHEN u2.full_name IS NOT NULL AND u2.full_name != '' THEN u2.full_name ELSE u2.username END AS student_name,
-                u2.full_name AS student_fullname
+                CASE WHEN u.full_name IS NOT NULL AND u.full_name != '' THEN u.full_name ELSE u.username END AS user_name,
+                u.full_name AS user_fullname,
+                u.role AS user_role
             FROM bookings b
             JOIN rooms r ON b.room_id = r.id
-            LEFT JOIN users u1 ON b.teacher_id = u1.id
-            LEFT JOIN users u2 ON b.student_id = u2.id
+            LEFT JOIN users u ON b.user_id = u.id
             WHERE b.id = ?"
         );
         $stmt->execute([$id]);
@@ -218,16 +211,16 @@ class BookingModel
     public function addBooking($data)
     {
         $stmt = $this->db->prepare(
-            "INSERT INTO bookings (room_id, teacher_id, student_id, class_code, start_time, end_time, status)
-             VALUES (:room_id, :teacher_id, :student_id, :class_code, :start_time, :end_time, :status)"
+            "INSERT INTO bookings (room_id, user_id, class_code, start_time, end_time, purpose, status)
+             VALUES (:room_id, :user_id, :class_code, :start_time, :end_time, :purpose, :status)"
         );
         return $stmt->execute([
             ':room_id' => $data['room_id'],
-            ':teacher_id' => $data['teacher_id'] ?? null,
-            ':student_id' => $data['student_id'] ?? null,
+            ':user_id' => $data['user_id'],
             ':class_code' => $data['class_code'],
             ':start_time' => $data['start_time'],
             ':end_time' => $data['end_time'],
+            ':purpose' => $data['purpose'] ?? null,
             ':status' => $data['status']
         ]);
     }
@@ -236,16 +229,16 @@ class BookingModel
     {
         $stmt = $this->db->prepare(
             "UPDATE bookings
-             SET room_id = ?, teacher_id = ?, student_id = ?, class_code = ?, start_time = ?, end_time = ?, status = ?
+             SET room_id = ?, user_id = ?, class_code = ?, start_time = ?, end_time = ?, purpose = ?, status = ?
              WHERE id = ?"
         );
         return $stmt->execute([
             $data['room_id'],
-            $data['teacher_id'] ?? null,
-            $data['student_id'] ?? null,
+            $data['user_id'],
             $data['class_code'],
             $data['start_time'],
             $data['end_time'],
+            $data['purpose'] ?? null,
             $data['status'],
             $id
         ]);
@@ -282,9 +275,18 @@ class BookingModel
                  ((start_time = ? AND end_time = ?) OR
                   (start_time BETWEEN ? AND ?))"
             );
+
+            // Lấy teacher_id từ user_id nếu user là giáo viên
+            $teacherId = null;
+            if ($booking['user_id']) {
+                $userStmt = $this->db->prepare("SELECT id FROM users WHERE id = ? AND role = 'teacher'");
+                $userStmt->execute([$booking['user_id']]);
+                $teacherId = $userStmt->fetchColumn();
+            }
+
             $findTimetableStmt->execute([
                 $booking['class_code'],
-                $booking['teacher_id'],
+                $teacherId,
                 $booking['room_id'],
                 $booking['start_time'],
                 $booking['end_time'],
@@ -322,24 +324,101 @@ class BookingModel
      * Update the status of a booking
      *
      * @param int $id Booking ID
-     * @param string $status New status (approved, rejected, pending)
+     * @param string $status New status (approved, rejected, pending, cancelled)
      * @return bool Success or failure
      */
     public function updateBookingStatus($id, $status)
     {
-        // Map standard status values to legacy values if needed
-        $statusMapping = [
-            'approved' => 'được duyệt',
-            'rejected' => 'từ chối',
-            'pending' => 'chờ duyệt',
-            'cancelled' => 'đã hủy'
-        ];
+        try {
+            // Map standard status values to legacy values if needed
+            $statusMapping = [
+                'approved' => 'được duyệt',
+                'rejected' => 'từ chối',
+                'pending' => 'chờ duyệt',
+                'cancelled' => 'đã hủy'
+            ];
 
-        // Use the mapped value if it exists, otherwise use the original value
-        $dbStatus = isset($statusMapping[$status]) ? $statusMapping[$status] : $status;
+            // Use the mapped value if it exists, otherwise use the original value
+            $dbStatus = isset($statusMapping[$status]) ? $statusMapping[$status] : $status;
 
-        $stmt = $this->db->prepare("UPDATE bookings SET status = ? WHERE id = ?");
-        return $stmt->execute([$dbStatus, $id]);
+            // Nếu trạng thái là 'đã hủy', cần cập nhật cả timetable
+            if ($dbStatus === 'đã hủy' || $status === 'cancelled') {
+                // Lấy thông tin booking
+                $getBookingStmt = $this->db->prepare("SELECT * FROM bookings WHERE id = ?");
+                $getBookingStmt->execute([$id]);
+                $booking = $getBookingStmt->fetch(\PDO::FETCH_ASSOC);
+
+                if (!$booking) {
+                    return false;
+                }
+
+                // Bắt đầu transaction
+                $this->db->beginTransaction();
+
+                // Cập nhật trạng thái booking
+                $updateStmt = $this->db->prepare("UPDATE bookings SET status = ? WHERE id = ?");
+                $updateResult = $updateStmt->execute([$dbStatus, $id]);
+
+                if (!$updateResult) {
+                    $this->db->rollBack();
+                    return false;
+                }
+
+                // Tìm và cập nhật timetable tương ứng (nếu có)
+                $findTimetableStmt = $this->db->prepare(
+                    "SELECT id FROM timetables
+                     WHERE class_code = ? AND teacher_id = ? AND room_id = ? AND
+                     ((start_time = ? AND end_time = ?) OR
+                      (start_time BETWEEN ? AND ?))"
+                );
+
+                // Lấy teacher_id từ user_id nếu user là giáo viên
+                $teacherId = null;
+                if ($booking['user_id']) {
+                    $userStmt = $this->db->prepare("SELECT id FROM users WHERE id = ? AND role = 'teacher'");
+                    $userStmt->execute([$booking['user_id']]);
+                    $teacherId = $userStmt->fetchColumn();
+                }
+
+                $findTimetableStmt->execute([
+                    $booking['class_code'],
+                    $teacherId,
+                    $booking['room_id'],
+                    $booking['start_time'],
+                    $booking['end_time'],
+                    date('Y-m-d H:i:s', strtotime($booking['start_time']) - 3600), // 1 giờ trước
+                    date('Y-m-d H:i:s', strtotime($booking['end_time']) + 3600)   // 1 giờ sau
+                ]);
+                $timetable = $findTimetableStmt->fetch(\PDO::FETCH_ASSOC);
+
+                if ($timetable) {
+                    // Cập nhật room_id = NULL trong timetable
+                    $updateTimetableStmt = $this->db->prepare("UPDATE timetables SET room_id = NULL WHERE id = ?");
+                    $updateResult = $updateTimetableStmt->execute([$timetable['id']]);
+
+                    if (!$updateResult) {
+                        $this->db->rollBack();
+                        error_log("Lỗi khi cập nhật timetable sau khi hủy booking: " . json_encode($timetable));
+                        return false;
+                    }
+                }
+
+                // Commit transaction
+                $this->db->commit();
+                return true;
+            } else {
+                // Cập nhật trạng thái bình thường
+                $stmt = $this->db->prepare("UPDATE bookings SET status = ? WHERE id = ?");
+                return $stmt->execute([$dbStatus, $id]);
+            }
+        } catch (\Exception $e) {
+            // Rollback transaction nếu có lỗi
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log("Lỗi khi cập nhật trạng thái booking: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**

@@ -49,33 +49,33 @@ ob_start();
                     <div class="col-md-6">
                         <label for="user_type" class="form-label fw-semibold">Loại người dùng</label>
                         <select name="user_type" id="user_type" class="form-select" required onchange="toggleUserSelect()">
-                            <option value="teacher" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'teacher') : ($data['booking']['teacher_id'] ? true : false)) ? 'selected' : ''; ?>>Giảng viên</option>
-                            <option value="student" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student') : ($data['booking']['student_id'] ? true : false)) ? 'selected' : ''; ?>>Sinh viên</option>
+                            <option value="teacher" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'teacher') : ($data['booking']['user_role'] === 'teacher' ? true : false)) ? 'selected' : ''; ?>>Giảng viên</option>
+                            <option value="student" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student') : ($data['booking']['user_role'] === 'student' ? true : false)) ? 'selected' : ''; ?>>Sinh viên</option>
                         </select>
                     </div>
 
-                    <div class="col-md-6" id="teacher_select" style="display: <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student' ? 'none' : 'block') : ($data['booking']['teacher_id'] ? 'block' : 'none')); ?>;">
+                    <div class="col-md-6" id="teacher_select" style="display: <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student' ? 'none' : 'block') : ($data['booking']['user_role'] === 'teacher' ? 'block' : 'none')); ?>;">
                         <label for="teacher_id" class="form-label fw-semibold">Chọn giảng viên</label>
-                        <select name="teacher_id" id="teacher_id" class="form-select" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'teacher' ? 'required' : '') : ($data['booking']['teacher_id'] ? 'required' : '')); ?>>
+                        <select name="teacher_id" id="teacher_id" class="form-select" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'teacher' ? 'required' : '') : ($data['booking']['user_role'] === 'teacher' ? 'required' : '')); ?>>
                             <option value="">-- Chọn giảng viên --</option>
                             <?php foreach ($data['users'] as $user): ?>
                                 <?php if ($user['role'] === 'teacher'): ?>
-                                    <option value="<?php echo $user['id']; ?>" <?php echo (isset($_POST['teacher_id']) ? ($_POST['teacher_id'] == $user['id'] ? 'selected' : '') : ($user['id'] == $data['booking']['teacher_id'] ? 'selected' : '')); ?>>
-                                        <?php echo htmlspecialchars($user['username']); ?>
+                                    <option value="<?php echo $user['id']; ?>" <?php echo (isset($_POST['teacher_id']) ? ($_POST['teacher_id'] == $user['id'] ? 'selected' : '') : ($user['id'] == $data['booking']['user_id'] && $data['booking']['user_role'] === 'teacher' ? 'selected' : '')); ?>>
+                                        <?php echo htmlspecialchars($user['full_name'] ?? $user['username']); ?>
                                     </option>
                                 <?php endif; ?>
                             <?php endforeach; ?>
                         </select>
                     </div>
 
-                    <div class="col-md-6" id="student_select" style="display: <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student' ? 'block' : 'none') : ($data['booking']['student_id'] ? 'block' : 'none')); ?>;">
+                    <div class="col-md-6" id="student_select" style="display: <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student' ? 'block' : 'none') : ($data['booking']['user_role'] === 'student' ? 'block' : 'none')); ?>;">
                         <label for="student_id" class="form-label fw-semibold">Chọn sinh viên</label>
-                        <select name="student_id" id="student_id" class="form-select" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student' ? 'required' : '') : ($data['booking']['student_id'] ? 'required' : '')); ?>>
+                        <select name="student_id" id="student_id" class="form-select" <?php echo (isset($_POST['user_type']) ? ($_POST['user_type'] === 'student' ? 'required' : '') : ($data['booking']['user_role'] === 'student' ? 'required' : '')); ?>>
                             <option value="">-- Chọn sinh viên --</option>
                             <?php foreach ($data['users'] as $user): ?>
                                 <?php if ($user['role'] === 'student'): ?>
-                                    <option value="<?php echo $user['id']; ?>" <?php echo (isset($_POST['student_id']) ? ($_POST['student_id'] == $user['id'] ? 'selected' : '') : ($user['id'] == $data['booking']['student_id'] ? 'selected' : '')); ?>>
-                                        <?php echo htmlspecialchars($user['username']); ?>
+                                    <option value="<?php echo $user['id']; ?>" <?php echo (isset($_POST['student_id']) ? ($_POST['student_id'] == $user['id'] ? 'selected' : '') : ($user['id'] == $data['booking']['user_id'] && $data['booking']['user_role'] === 'student' ? 'selected' : '')); ?>>
+                                        <?php echo htmlspecialchars($user['full_name'] ?? $user['username']); ?>
                                     </option>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -84,7 +84,7 @@ ob_start();
 
                     <div class="col-md-6">
                         <label for="class_code" class="form-label fw-semibold">Mã lớp</label>
-                        <input type="text" name="class_code" id="class_code" value="<?php echo htmlspecialchars($_POST['class_code'] ?? $data['booking']['class_code']); ?>" class="form-control" required>
+                        <input type="text" name="class_code" id="class_code" value="<?php echo htmlspecialchars($_POST['class_code'] ?? $data['booking']['class_code']); ?>" class="form-control">
                     </div>
 
                     <div class="col-md-6">
@@ -95,6 +95,11 @@ ob_start();
                     <div class="col-md-6">
                         <label for="end_time" class="form-label fw-semibold">Thời gian kết thúc</label>
                         <input type="datetime-local" name="end_time" id="end_time" value="<?php echo htmlspecialchars($_POST['end_time'] ?? date('Y-m-d\TH:i', strtotime($data['booking']['end_time']))); ?>" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="purpose" class="form-label fw-semibold">Mục đích sử dụng</label>
+                        <input type="text" name="purpose" id="purpose" value="<?php echo htmlspecialchars($_POST['purpose'] ?? $data['booking']['purpose'] ?? ''); ?>" class="form-control" required>
                     </div>
 
                     <div class="col-md-6">
@@ -226,16 +231,22 @@ ob_start();
             const teacherSelect = document.getElementById('teacher_select');
             const studentSelect = document.getElementById('student_select');
 
+            const classCodeInput = document.getElementById('class_code');
+
             if (userType === 'teacher') {
                 teacherSelect.style.display = 'block';
                 studentSelect.style.display = 'none';
                 document.getElementById('teacher_id').setAttribute('required', 'required');
                 document.getElementById('student_id').removeAttribute('required');
+                // Bỏ thuộc tính required cho mã lớp khi người dùng là giảng viên
+                classCodeInput.removeAttribute('required');
             } else {
                 teacherSelect.style.display = 'none';
                 studentSelect.style.display = 'block';
                 document.getElementById('student_id').setAttribute('required', 'required');
                 document.getElementById('teacher_id').removeAttribute('required');
+                // Thêm thuộc tính required cho mã lớp khi người dùng là sinh viên
+                classCodeInput.setAttribute('required', 'required');
             }
         }
 
@@ -342,7 +353,7 @@ ob_start();
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded'
                             },
-                            body: `start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}&class_code=${encodeURIComponent(classCode)}&user_type=${encodeURIComponent(userType)}&teacher_id=${encodeURIComponent(teacherId)}&student_id=${encodeURIComponent(studentId)}&status=${encodeURIComponent(status)}&room_id=${encodeURIComponent(roomId)}`
+                            body: `start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}&class_code=${encodeURIComponent(classCode)}&user_type=${encodeURIComponent(userType)}&teacher_id=${encodeURIComponent(teacherId)}&student_id=${encodeURIComponent(studentId)}&status=${encodeURIComponent(status)}&room_id=${encodeURIComponent(roomId)}&purpose=${encodeURIComponent(document.getElementById('purpose').value)}`
                         })
                         .then(response => response.text())
                         .then(() => {

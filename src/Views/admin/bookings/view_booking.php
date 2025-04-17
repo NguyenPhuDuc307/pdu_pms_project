@@ -55,6 +55,10 @@ require_once __DIR__ . '/../../layouts/admin_header.php';
                                         <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($booking['end_time']))); ?></td>
                                     </tr>
                                     <tr>
+                                        <th>Mục đích sử dụng</th>
+                                        <td><?php echo htmlspecialchars($booking['purpose'] ?? 'Không có'); ?></td>
+                                    </tr>
+                                    <tr>
                                         <th>Trạng thái</th>
                                         <td>
                                             <?php
@@ -101,32 +105,20 @@ require_once __DIR__ . '/../../layouts/admin_header.php';
                                         <th>Loại người dùng</th>
                                         <td>
                                             <?php
-                                            echo htmlspecialchars($booking['user_type'] === 'teacher' ? 'Giáo viên' : 'Sinh viên');
+                                            echo htmlspecialchars($booking['user_role'] === 'teacher' ? 'Giáo viên' : 'Sinh viên');
                                             ?>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>ID người dùng</th>
                                         <td>
-                                            <?php
-                                            if ($booking['user_type'] === 'teacher') {
-                                                echo htmlspecialchars($booking['teacher_id'] ?? 'N/A');
-                                            } else {
-                                                echo htmlspecialchars($booking['student_id'] ?? 'N/A');
-                                            }
-                                            ?>
+                                            <?php echo htmlspecialchars($booking['user_id'] ?? 'N/A'); ?>
                                         </td>
                                     </tr>
                                     <tr>
                                         <th>Tên người dùng</th>
                                         <td>
-                                            <?php
-                                            if ($booking['user_type'] === 'teacher') {
-                                                echo htmlspecialchars($booking['teacher_name'] ?? 'N/A');
-                                            } else {
-                                                echo htmlspecialchars($booking['student_name'] ?? 'N/A');
-                                            }
-                                            ?>
+                                            <?php echo htmlspecialchars($booking['user_name'] ?? 'N/A'); ?>
                                         </td>
                                     </tr>
                                     <tr>

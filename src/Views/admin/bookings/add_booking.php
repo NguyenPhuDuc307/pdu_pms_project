@@ -61,7 +61,7 @@ ob_start();
                             <?php foreach ($data['users'] as $user): ?>
                                 <?php if ($user['role'] === 'teacher'): ?>
                                     <option value="<?php echo $user['id']; ?>" <?php echo (isset($_POST['teacher_id']) && $_POST['teacher_id'] == $user['id']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($user['username']); ?>
+                                        <?php echo htmlspecialchars($user['full_name'] ?? $user['username']); ?>
                                     </option>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -75,7 +75,7 @@ ob_start();
                             <?php foreach ($data['users'] as $user): ?>
                                 <?php if ($user['role'] === 'student'): ?>
                                     <option value="<?php echo $user['id']; ?>" <?php echo (isset($_POST['student_id']) && $_POST['student_id'] == $user['id']) ? 'selected' : ''; ?>>
-                                        <?php echo htmlspecialchars($user['username']); ?>
+                                        <?php echo htmlspecialchars($user['full_name'] ?? $user['username']); ?>
                                     </option>
                                 <?php endif; ?>
                             <?php endforeach; ?>
@@ -95,6 +95,11 @@ ob_start();
                     <div class="col-md-6">
                         <label for="end_time" class="form-label fw-semibold">Thời gian kết thúc</label>
                         <input type="datetime-local" name="end_time" id="end_time" value="<?php echo htmlspecialchars($_POST['end_time'] ?? ''); ?>" class="form-control" required>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="purpose" class="form-label fw-semibold">Mục đích sử dụng</label>
+                        <input type="text" name="purpose" id="purpose" value="<?php echo htmlspecialchars($_POST['purpose'] ?? ''); ?>" class="form-control" required>
                     </div>
 
                     <div class="col-md-6">
@@ -203,16 +208,22 @@ ob_start();
             const teacherSelect = document.getElementById('teacher_select');
             const studentSelect = document.getElementById('student_select');
 
+            const classCodeInput = document.getElementById('class_code');
+
             if (userType === 'teacher') {
                 teacherSelect.style.display = 'block';
                 studentSelect.style.display = 'none';
                 document.getElementById('teacher_id').setAttribute('required', 'required');
                 document.getElementById('student_id').removeAttribute('required');
+                // Bỏ thuộc tính required cho mã lớp khi người dùng là giảng viên
+                classCodeInput.removeAttribute('required');
             } else {
                 teacherSelect.style.display = 'none';
                 studentSelect.style.display = 'block';
                 document.getElementById('student_id').setAttribute('required', 'required');
                 document.getElementById('teacher_id').removeAttribute('required');
+                // Thêm thuộc tính required cho mã lớp khi người dùng là sinh viên
+                classCodeInput.setAttribute('required', 'required');
             }
         }
 
@@ -220,50 +231,56 @@ ob_start();
             // Gọi toggleUserSelect để đảm bảo trạng thái ban đầu của form
             toggleUserSelect();
 
-            document.querySelectorAll('input[name="room_id"]').forEach(function(input) {
-                const label = input.closest('label');
-                const card = label.querySelector('.room-card');
+            // Tạo hàm khởi tạo sự kiện cho các phòng
+            function initRoomEvents() {
+                document.querySelectorAll('input[name="room_id"]').forEach(function(input) {
+                    const label = input.closest('label');
+                    const card = label.querySelector('.room-card');
 
-                if (input.checked) {
-                    card.classList.add('room-selected');
-                    const statusBadge = card.querySelector('.status-badge');
-                    if (statusBadge) {
-                        statusBadge.textContent = 'Đã chọn';
-                        statusBadge.classList.remove('bg-success-subtle', 'text-success', 'bg-danger-subtle', 'text-danger');
-                        statusBadge.classList.add('bg-primary-subtle', 'text-primary');
-                    }
-                }
-
-                if (!input.disabled) {
-                    label.addEventListener('click', function() {
-                        document.querySelectorAll('.room-card').forEach(function(otherCard) {
-                            otherCard.classList.remove('room-selected');
-                            const otherStatusBadge = otherCard.querySelector('.status-badge');
-                            if (otherStatusBadge && otherStatusBadge.textContent === 'Đã chọn') {
-                                const otherInput = otherCard.closest('label').querySelector('input');
-                                if (otherInput && otherInput.value != input.value) {
-                                    otherStatusBadge.textContent = otherCard.classList.contains('bg-danger-subtle') ? 'Đã đặt' : 'Trống';
-                                    otherStatusBadge.classList.remove('bg-primary-subtle', 'text-primary');
-                                    otherStatusBadge.classList.add(otherCard.classList.contains('bg-danger-subtle') ? 'bg-danger-subtle' : 'bg-success-subtle', otherCard.classList.contains('bg-danger-subtle') ? 'text-danger' : 'text-success');
-                                }
-                            }
-                        });
-
+                    if (input.checked) {
                         card.classList.add('room-selected');
-                        input.checked = true;
-
                         const statusBadge = card.querySelector('.status-badge');
                         if (statusBadge) {
                             statusBadge.textContent = 'Đã chọn';
                             statusBadge.classList.remove('bg-success-subtle', 'text-success', 'bg-danger-subtle', 'text-danger');
                             statusBadge.classList.add('bg-primary-subtle', 'text-primary');
                         }
+                    }
 
-                        // Sử dụng Bootstrap để tạo hiệu ứng
-                        $(card).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-                    });
-                }
-            });
+                    if (!input.disabled) {
+                        label.addEventListener('click', function() {
+                            document.querySelectorAll('.room-card').forEach(function(otherCard) {
+                                otherCard.classList.remove('room-selected');
+                                const otherStatusBadge = otherCard.querySelector('.status-badge');
+                                if (otherStatusBadge && otherStatusBadge.textContent === 'Đã chọn') {
+                                    const otherInput = otherCard.closest('label').querySelector('input');
+                                    if (otherInput && otherInput.value != input.value) {
+                                        otherStatusBadge.textContent = otherCard.classList.contains('bg-danger-subtle') ? 'Đã đặt' : 'Trống';
+                                        otherStatusBadge.classList.remove('bg-primary-subtle', 'text-primary');
+                                        otherStatusBadge.classList.add(otherCard.classList.contains('bg-danger-subtle') ? 'bg-danger-subtle' : 'bg-success-subtle', otherCard.classList.contains('bg-danger-subtle') ? 'text-danger' : 'text-success');
+                                    }
+                                }
+                            });
+
+                            card.classList.add('room-selected');
+                            input.checked = true;
+
+                            const statusBadge = card.querySelector('.status-badge');
+                            if (statusBadge) {
+                                statusBadge.textContent = 'Đã chọn';
+                                statusBadge.classList.remove('bg-success-subtle', 'text-success', 'bg-danger-subtle', 'text-danger');
+                                statusBadge.classList.add('bg-primary-subtle', 'text-primary');
+                            }
+
+                            // Sử dụng Bootstrap để tạo hiệu ứng
+                            $(card).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
+                        });
+                    }
+                });
+            }
+
+            // Khởi tạo sự kiện cho các phòng khi trang tải lần đầu
+            initRoomEvents();
 
             const startTimeInput = document.getElementById('start_time');
             const endTimeInput = document.getElementById('end_time');
@@ -302,25 +319,41 @@ ob_start();
                     }
 
                     // Hiển thị spinner khi đang tải
-                    const loadingSpinner = document.createElement('div');
-                    loadingSpinner.className = 'text-center my-3';
-                    loadingSpinner.innerHTML = '<div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div>';
-                    document.querySelector('.card-body').appendChild(loadingSpinner);
+                    const roomsContainer = document.querySelector('.row.row-cols-2.row-cols-sm-3.row-cols-md-4.row-cols-lg-6.g-3');
+                    roomsContainer.innerHTML = '<div class="text-center my-3 w-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
 
                     fetch('/pdu_pms_project/public/admin/add_booking', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Requested-With': 'XMLHttpRequest'
                             },
                             body: `start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}&class_code=${encodeURIComponent(classCode)}&user_type=${encodeURIComponent(userType)}&teacher_id=${encodeURIComponent(teacherId)}&student_id=${encodeURIComponent(studentId)}&status=${encodeURIComponent(status)}`
                         })
                         .then(response => response.text())
-                        .then(() => {
-                            location.reload();
+                        .then(html => {
+                            // Tạo một DOM parser để phân tích HTML trả về
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(html, 'text/html');
+
+                            // Lấy danh sách phòng từ HTML trả về
+                            const newRoomsContainer = doc.querySelector('.row.row-cols-2.row-cols-sm-3.row-cols-md-4.row-cols-lg-6.g-3');
+
+                            if (newRoomsContainer) {
+                                // Cập nhật danh sách phòng
+                                roomsContainer.innerHTML = newRoomsContainer.innerHTML;
+
+                                // Khởi tạo lại các sự kiện cho các phòng
+                                initRoomEvents();
+                            } else {
+                                // Nếu không tìm thấy danh sách phòng, hiển thị thông báo lỗi
+                                roomsContainer.innerHTML = '<div class="col-12 text-center"><div class="alert alert-danger">Không thể cập nhật danh sách phòng. Vui lòng thử lại.</div></div>';
+                            }
                         })
                         .catch(error => {
                             console.error('Error:', error);
-                            loadingSpinner.remove();
+                            roomsContainer.innerHTML = '<div class="col-12 text-center"><div class="alert alert-danger">Đã có lỗi xảy ra khi cập nhật danh sách phòng.</div></div>';
+
                             const alertHtml = `
                                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                                     Đã có lỗi xảy ra khi cập nhật danh sách phòng.
@@ -356,6 +389,62 @@ ob_start();
 
             startTimeInput.addEventListener('change', updateRoomAvailability);
             endTimeInput.addEventListener('change', updateRoomAvailability);
+
+            // Kiểm tra form trước khi submit
+            document.querySelector('form').addEventListener('submit', function(event) {
+                const userType = document.getElementById('user_type').value;
+                const teacherId = document.getElementById('teacher_id').value;
+                const studentId = document.getElementById('student_id').value;
+                const classCode = document.getElementById('class_code').value;
+                const startTime = document.getElementById('start_time').value;
+                const endTime = document.getElementById('end_time').value;
+                const purpose = document.getElementById('purpose').value;
+                const roomSelected = document.querySelector('input[name="room_id"]:checked');
+
+                let isValid = true;
+                let errorMessage = '';
+
+                // Xóa thông báo lỗi cũ
+                const oldAlerts = document.querySelectorAll('.alert');
+                oldAlerts.forEach(alert => alert.remove());
+
+                // Kiểm tra các trường bắt buộc
+                if (!startTime) {
+                    isValid = false;
+                    errorMessage = 'Vui lòng chọn thời gian bắt đầu';
+                } else if (!endTime) {
+                    isValid = false;
+                    errorMessage = 'Vui lòng chọn thời gian kết thúc';
+                } else if (!purpose) {
+                    isValid = false;
+                    errorMessage = 'Vui lòng nhập mục đích sử dụng';
+                } else if (!roomSelected) {
+                    isValid = false;
+                    errorMessage = 'Vui lòng chọn phòng';
+                } else if (userType === 'teacher' && !teacherId) {
+                    isValid = false;
+                    errorMessage = 'Vui lòng chọn giảng viên';
+                } else if (userType === 'student' && !studentId) {
+                    isValid = false;
+                    errorMessage = 'Vui lòng chọn sinh viên';
+                } else if (!classCode) {
+                    isValid = false;
+                    errorMessage = 'Vui lòng nhập mã lớp';
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                    const alertHtml = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            ${errorMessage}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                    const alertContainer = document.createElement('div');
+                    alertContainer.innerHTML = alertHtml;
+                    document.querySelector('.card-body').prepend(alertContainer.firstChild);
+                }
+            });
         });
     </script>
 </div>

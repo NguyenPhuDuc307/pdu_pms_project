@@ -20,6 +20,7 @@ require_once __DIR__ . '/../src/Controllers/RoomController.php';
 require_once __DIR__ . '/../src/Controllers/EquipmentController.php';
 require_once __DIR__ . '/../src/Controllers/MaintenanceController.php';
 require_once __DIR__ . '/../src/Controllers/ProfileController.php';
+require_once __DIR__ . '/../src/Controllers/BookingController.php';
 require_once __DIR__ . '/../src/Config/Database.php';
 
 use Controllers\AuthController;
@@ -30,6 +31,7 @@ use Controllers\RoomController;
 use Controllers\EquipmentController;
 use Controllers\MaintenanceController;
 use Controllers\ProfileController;
+use Controllers\BookingController;
 
 $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
 $base_path = 'pdu_pms_project/public';
@@ -46,6 +48,7 @@ $roomController = new RoomController();
 $equipmentController = new EquipmentController();
 $maintenanceController = new MaintenanceController();
 $profileController = new ProfileController();
+$bookingController = new BookingController();
 
 switch ($uri) {
     case '':
@@ -197,8 +200,8 @@ switch ($uri) {
         $adminController->getBookingsJson();
         break;
     case 'admin/add_booking':
-        $data = $adminController->addBooking($_POST);
-        require_once __DIR__ . '/../src/Views/admin/bookings/add_booking.php';
+        $data = $bookingController->bookRoom($_POST);
+        require_once __DIR__ . '/../src/Views/common/book_room.php';
         break;
     case 'admin/edit_booking':
         // Kiểm tra xem có ID trong query string không
@@ -255,8 +258,8 @@ switch ($uri) {
         require_once __DIR__ . '/../src/Views/teacher/index.php';
         break;
     case 'teacher/book_room':
-        $data = $teacherController->bookRoom();
-        require_once __DIR__ . '/../src/Views/teacher/book_room.php';
+        $data = $bookingController->bookRoom($_POST);
+        require_once __DIR__ . '/../src/Views/common/book_room.php';
         break;
     case 'teacher/my_bookings':
         // Thêm route cho xem lịch đặt phòng của giáo viên
@@ -283,8 +286,8 @@ switch ($uri) {
         require_once __DIR__ . '/../src/Views/student/index.php';
         break;
     case 'student/book_room':
-        $data = $studentController->bookRoom();
-        require_once __DIR__ . '/../src/Views/student/book_room.php';
+        $data = $bookingController->bookRoom($_POST);
+        require_once __DIR__ . '/../src/Views/common/book_room.php';
         break;
 
     case 'student/my_bookings':
@@ -371,7 +374,7 @@ switch ($uri) {
         require_once __DIR__ . '/../src/Views/teacher/suggest_rooms.php';
         break;
     case 'teacher/get-available-rooms':
-        $teacherController->getAvailableRooms();
+        $bookingController->getAvailableRooms();
         break;
     case 'teacher/get-teacher-bookings':
         $teacherController->getTeacherBookings();
@@ -448,6 +451,16 @@ switch ($uri) {
             exit;
         }
         $profileController->changePassword($_POST);
+        break;
+
+    case 'book_room':
+        // Trang đặt phòng chung cho tất cả các vai trò
+        if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+        $data = $bookingController->bookRoom($_POST);
+        require_once __DIR__ . '/../src/Views/common/book_room.php';
         break;
     case 'demo/alerts':
         // Trang demo hiển thị các loại alert

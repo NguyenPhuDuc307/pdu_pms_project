@@ -30,7 +30,7 @@ class RoomModel
 
         // Truy vấn đơn giản hóa để lấy các phòng được sử dụng nhiều nhất
         $stmt = $this->db->prepare(
-            "SELECT r.id, r.name as room_number, r.capacity,
+            "SELECT r.id, r.name, r.capacity,
                     'Phòng thực hành' as room_type_name,
                     COUNT(b.id) AS booking_count,
                     COUNT(b.id) * 100 / (SELECT COUNT(*) FROM bookings) AS usage_percent
@@ -57,7 +57,7 @@ class RoomModel
 
                     $rooms[] = [
                         'id' => $index + 1,
-                        'room_number' => 'Phòng ' . chr(65 + $index) . ($index * 100 + 1),
+                        'name' => 'Phòng ' . chr(65 + $index) . ($index * 100 + 1),
                         'room_type_id' => $type['id'] ?? null,
                         'room_type_name' => $type['name'] ?? 'Loại phòng ' . ($index + 1),
                         'booking_count' => rand(5, 30),
@@ -69,7 +69,7 @@ class RoomModel
                 for ($i = 0; $i < $limit; $i++) {
                     $rooms[] = [
                         'id' => $i + 1,
-                        'room_number' => 'Phòng ' . chr(65 + $i) . ($i * 100 + 1),
+                        'name' => 'Phòng ' . chr(65 + $i) . ($i * 100 + 1),
                         'room_type_id' => null,
                         'room_type_name' => 'Loại phòng ' . ($i + 1),
                         'booking_count' => rand(5, 30),

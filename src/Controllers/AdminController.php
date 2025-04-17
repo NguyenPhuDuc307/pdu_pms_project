@@ -137,10 +137,10 @@ class AdminController
                         'booking_id' => $booking['id'],
                         'user_id' => $userId,
                         'user_name' => $user['username'],
-                        'room_name' => $room['room_number'],
+                        'room_name' => $room['name'],
                         'status' => $booking['status'],
                         'timestamp' => $booking['created_at'] ?? date('Y-m-d H:i:s'),
-                        'message' => "{$user['username']} đã đặt phòng {$room['room_number']}"
+                        'message' => "{$user['username']} đã đặt phòng {$room['name']}"
                     ];
                 }
             }
@@ -700,7 +700,7 @@ class AdminController
 
         if ($user_id) {
             $bookings = array_filter($bookings, function ($booking) use ($user_id) {
-                return ($booking['teacher_id'] == $user_id) || ($booking['student_id'] == $user_id);
+                return $booking['user_id'] == $user_id;
             });
         }
 
@@ -726,9 +726,33 @@ class AdminController
             $class_code = $data['class_code'] ?? '';
             $start_time = $data['start_time'] ?? '';
             $end_time = $data['end_time'] ?? '';
+            $purpose = $data['purpose'] ?? '';
             $status = $data['status'] ?? 'pending';
 
-            if ($room_id && $class_code && $start_time && $end_time) {
+            // Kiểm tra xem có phải là AJAX request không
+            $isAjaxRequest = isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
+
+            // Nếu chỉ có start_time và end_time và là AJAX request, thì chỉ cập nhật danh sách phòng trống
+            if ($isAjaxRequest && $start_time && $end_time && !$room_id) {
+                // Lấy danh sách phòng khả dụng (trống) nếu có start_time và end_time
+                $start_time = date('Y-m-d H:i:s', strtotime($start_time));
+                $end_time = date('Y-m-d H:i:s', strtotime($end_time));
+                $available_rooms = [];
+                $rooms = $this->roomModel->getAllRooms();
+                foreach ($rooms as $room) {
+                    if (!$this->bookingModel->checkBookingConflict($room['id'], $start_time, $end_time)) {
+                        $available_rooms[] = $room['id'];
+                    }
+                }
+
+                return [
+                    'rooms' => $this->roomModel->getAllRooms(),
+                    'users' => $this->userModel->getAllUsers(),
+                    'available_rooms' => $available_rooms
+                ];
+            }
+
+            if ($room_id && $class_code && $start_time && $end_time && $purpose) {
                 if ($user_type === 'teacher' && !$teacher_id) {
                     return [
                         'error' => 'Vui lòng chọn giảng viên',
@@ -746,6 +770,10 @@ class AdminController
                     ];
                 }
 
+                // Kiểm tra xung đột lịch đặt phòng
+                $start_time = date('Y-m-d H:i:s', strtotime($start_time));
+                $end_time = date('Y-m-d H:i:s', strtotime($end_time));
+
                 $conflict = $this->bookingModel->checkBookingConflict($room_id, $start_time, $end_time);
                 if ($conflict) {
                     return [
@@ -758,17 +786,32 @@ class AdminController
 
                 $bookingData = [
                     'room_id' => $room_id,
-                    'teacher_id' => $teacher_id,
-                    'student_id' => $student_id,
                     'class_code' => $class_code,
                     'start_time' => $start_time,
                     'end_time' => $end_time,
+                    'purpose' => $purpose,
                     'status' => $status
                 ];
+
+                // Thêm user_id tùy theo loại người dùng
+                if ($user_type === 'teacher') {
+                    $bookingData['user_id'] = $teacher_id;
+                } else {
+                    $bookingData['user_id'] = $student_id;
+                }
                 $success = $this->bookingModel->addBooking($bookingData);
+
                 if ($success) {
-                    header('Location: /pdu_pms_project/public/admin/manage_bookings?message=Đặt phòng thành công');
-                    exit;
+                    if ($isAjaxRequest) {
+                        // Nếu là AJAX request, trả về JSON
+                        header('Content-Type: application/json');
+                        echo json_encode(['success' => true, 'message' => 'Đặt phòng thành công']);
+                        exit;
+                    } else {
+                        // Nếu không phải AJAX request, chuyển hướng
+                        header('Location: /pdu_pms_project/public/admin/manage_bookings?message=Đặt phòng thành công');
+                        exit;
+                    }
                 } else {
                     return [
                         'error' => 'Không thể đặt phòng, vui lòng thử lại',
@@ -825,9 +868,10 @@ class AdminController
             $class_code = $data['class_code'] ?? '';
             $start_time = $data['start_time'] ?? '';
             $end_time = $data['end_time'] ?? '';
+            $purpose = $data['purpose'] ?? '';
             $status = $data['status'] ?? 'pending';
 
-            if ($room_id && $class_code && $start_time && $end_time) {
+            if ($room_id && $class_code && $start_time && $end_time && $purpose) {
                 if ($user_type === 'teacher' && !$teacher_id) {
                     return [
                         'error' => 'Vui lòng chọn giảng viên',
@@ -860,13 +904,19 @@ class AdminController
 
                 $bookingData = [
                     'room_id' => $room_id,
-                    'teacher_id' => $teacher_id,
-                    'student_id' => $student_id,
                     'class_code' => $class_code,
                     'start_time' => $start_time,
                     'end_time' => $end_time,
+                    'purpose' => $purpose,
                     'status' => $status
                 ];
+
+                // Thêm user_id tùy theo loại người dùng
+                if ($user_type === 'teacher') {
+                    $bookingData['user_id'] = $teacher_id;
+                } else {
+                    $bookingData['user_id'] = $student_id;
+                }
                 $success = $this->bookingModel->updateBooking($id, $bookingData);
                 if ($success) {
                     header('Location: /pdu_pms_project/public/admin/manage_bookings?message=Đặt phòng đã được cập nhật thành công');

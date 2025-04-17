@@ -25,7 +25,7 @@ class TimetableModel
             $roomColumns = $stmt->fetchAll(\PDO::FETCH_COLUMN, 0);
 
             // Xác định tên cột phòng (có thể là name, room_name, hoặc khác)
-            $roomNameColumn = in_array('room_number', $roomColumns) ? 'room_number' : (in_array('name', $roomColumns) ? 'name' : 'id');
+            $roomNameColumn = in_array('name', $roomColumns) ? 'name' : 'id';
 
             // Sử dụng tên cột đúng trong truy vấn
             $query = "SELECT t.id, t.teacher_id, t.room_id, t.subject, t.start_time, t.end_time,
@@ -61,7 +61,7 @@ class TimetableModel
                 if (!isset($schedule[$row['room_name']])) {
                     $schedule[$row['room_name']] = [
                         'room_id' => $row['room_id'],
-                        'room_number' => $row['room_name'], // Sử dụng tên cột đã xác định
+                        'name' => $row['room_name'], // Sử dụng tên cột đã xác định
                         'slots' => []
                     ];
                 }
@@ -145,10 +145,10 @@ class TimetableModel
             // Nếu có room_id, tạo booking tương ứng
             if ($room_id !== null) {
                 $insertBookingStmt = $this->db->prepare(
-                    "INSERT INTO bookings (room_id, teacher_id, student_id, class_code, start_time, end_time, status)
-                     VALUES (?, ?, NULL, ?, ?, ?, 'được duyệt')"
+                    "INSERT INTO bookings (room_id, teacher_id, student_id, class_code, start_time, end_time, purpose, status)
+                     VALUES (?, ?, NULL, ?, ?, ?, ?, 'được duyệt')"
                 );
-                $insertResult = $insertBookingStmt->execute([$room_id, $teacher_id, $class_code, $start_time, $end_time]);
+                $insertResult = $insertBookingStmt->execute([$room_id, $teacher_id, $class_code, $start_time, $end_time, "Giảng dạy theo lịch"]);
 
                 if (!$insertResult) {
                     $this->db->rollBack();
@@ -221,7 +221,7 @@ class TimetableModel
                     $updateBookingStmt = $this->db->prepare(
                         "UPDATE bookings
                          SET room_id = ?, teacher_id = ?, class_code = ?,
-                             start_time = ?, end_time = ?, status = 'được duyệt'
+                             start_time = ?, end_time = ?, purpose = COALESCE(purpose, ?), status = 'được duyệt'
                          WHERE id = ?"
                     );
                     $updateResult = $updateBookingStmt->execute([
@@ -230,6 +230,7 @@ class TimetableModel
                         $class_code,
                         $start_time,
                         $end_time,
+                        "Giảng dạy theo lịch",
                         $oldBooking['id']
                     ]);
 
@@ -240,10 +241,10 @@ class TimetableModel
                 } else {
                     // Tạo booking mới
                     $insertBookingStmt = $this->db->prepare(
-                        "INSERT INTO bookings (room_id, teacher_id, student_id, class_code, start_time, end_time, status)
-                         VALUES (?, ?, NULL, ?, ?, ?, 'được duyệt')"
+                        "INSERT INTO bookings (room_id, teacher_id, student_id, class_code, start_time, end_time, purpose, status)
+                         VALUES (?, ?, NULL, ?, ?, ?, ?, 'được duyệt')"
                     );
-                    $insertResult = $insertBookingStmt->execute([$room_id, $teacher_id, $class_code, $start_time, $end_time]);
+                    $insertResult = $insertBookingStmt->execute([$room_id, $teacher_id, $class_code, $start_time, $end_time, "Giảng dạy theo lịch"]);
 
                     if (!$insertResult) {
                         $this->db->rollBack();
