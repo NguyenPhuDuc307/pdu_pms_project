@@ -710,9 +710,32 @@ class AdminController
             });
         }
 
+        // Thêm thông tin người dùng và phòng cho mỗi booking
+        $enhancedBookings = [];
+        foreach ($bookings as $booking) {
+            // Lấy thông tin người dùng
+            if (isset($booking['user_id']) && $booking['user_id']) {
+                $user = $this->userModel->getUserById($booking['user_id']);
+                if ($user) {
+                    $booking['user_name'] = $user['full_name'] ? $user['full_name'] : $user['username'];
+                    $booking['user_role'] = $user['role'];
+                }
+            }
+
+            // Lấy thông tin phòng nếu chưa có
+            if (isset($booking['room_id']) && $booking['room_id'] && !isset($booking['room_name'])) {
+                $room = $this->roomModel->getRoomById($booking['room_id']);
+                if ($room) {
+                    $booking['room_name'] = $room['name'];
+                }
+            }
+
+            $enhancedBookings[] = $booking;
+        }
+
         // Trả về dữ liệu dưới dạng JSON
         header('Content-Type: application/json');
-        echo json_encode(array_values($bookings));
+        echo json_encode($enhancedBookings);
         exit;
     }
 
@@ -1188,148 +1211,19 @@ class AdminController
         ];
     }
 
-    public function generateReports()
-    {
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-            header('Location: /pdu_pms_project/public/login');
-            exit;
-        }
 
-        $reportType = $_GET['type'] ?? 'bookings';
-        $timeRange = $_GET['timeRange'] ?? 'month';
 
-        switch ($reportType) {
-            case 'bookings':
-                $data = $this->getBookingReportData($timeRange);
-                break;
-            case 'rooms':
-                $data = $this->getRoomUsageReportData($timeRange);
-                break;
-            case 'users':
-                $data = $this->getUserActivityReportData($timeRange);
-                break;
-            case 'maintenance':
-                $data = $this->getMaintenanceReportData($timeRange);
-                break;
-            default:
-                $data = $this->getBookingReportData($timeRange);
-        }
 
-        return [
-            'reportType' => $reportType,
-            'timeRange' => $timeRange,
-            'reportData' => $data
-        ];
-    }
 
-    private function getBookingReportData($timeRange)
-    {
-        // Trong thực tế, sẽ truy vấn dữ liệu từ cơ sở dữ liệu dựa trên khoảng thời gian
-        return [
-            'labels' => ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-            'datasets' => [
-                [
-                    'label' => 'Số lượng đặt phòng',
-                    'data' => [12, 19, 3, 5, 2, 3, 7]
-                ]
-            ]
-        ];
-    }
 
-    private function getRoomUsageReportData($timeRange)
-    {
-        return [
-            'labels' => ['A101', 'B203', 'C305', 'D407', 'E509'],
-            'datasets' => [
-                [
-                    'label' => 'Tỷ lệ sử dụng (%)',
-                    'data' => [85, 72, 65, 90, 45]
-                ]
-            ]
-        ];
-    }
 
-    private function getUserActivityReportData($timeRange)
-    {
-        return [
-            'labels' => ['Giảng viên', 'Sinh viên', 'Admin'],
-            'datasets' => [
-                [
-                    'label' => 'Số lượng hoạt động',
-                    'data' => [150, 80, 200]
-                ]
-            ]
-        ];
-    }
 
-    private function getMaintenanceReportData($timeRange)
-    {
-        return [
-            'labels' => ['Đang chờ', 'Đang xử lý', 'Đã xử lý', 'Từ chối'],
-            'datasets' => [
-                [
-                    'label' => 'Yêu cầu bảo trì',
-                    'data' => [8, 12, 30, 5]
-                ]
-            ]
-        ];
-    }
 
-    public function exportReport($params)
-    {
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-            header('Location: /pdu_pms_project/public/login');
-            exit;
-        }
 
-        $reportType = $params['type'] ?? 'bookings';
-        $format = $params['format'] ?? 'pdf';
 
-        // Trong thực tế, sẽ tạo file theo định dạng yêu cầu và gửi cho người dùng tải xuống
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="report_' . $reportType . '.' . $format . '"');
 
-        echo "Đây là nội dung báo cáo $reportType ở định dạng $format";
-        exit;
-    }
 
-    public function analytics()
-    {
-        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-            header('Location: /pdu_pms_project/public/login');
-            exit;
-        }
 
-        // Trong thực tế, sẽ truy vấn và phân tích dữ liệu từ cơ sở dữ liệu
-        return [
-            'trending' => [
-                'mostBookedRooms' => [
-                    ['id' => 1, 'name' => 'A101', 'count' => 45],
-                    ['id' => 2, 'name' => 'B203', 'count' => 38],
-                    ['id' => 3, 'name' => 'C305', 'count' => 32]
-                ],
-                'peakHours' => [
-                    ['hour' => '9:00 - 10:00', 'count' => 65],
-                    ['hour' => '14:00 - 15:00', 'count' => 58],
-                    ['hour' => '10:00 - 11:00', 'count' => 52]
-                ],
-                'topUsers' => [
-                    ['name' => 'Nguyễn Văn A', 'count' => 23],
-                    ['name' => 'Trần Thị B', 'count' => 19],
-                    ['name' => 'Lê Văn C', 'count' => 17]
-                ]
-            ],
-            'predictions' => [
-                'nextMonthBookings' => 345,
-                'capacityUtilization' => 78,
-                'maintenanceSchedule' => [
-                    ['room' => 'A101', 'date' => date('Y-m-d', strtotime('+5 days'))],
-                    ['room' => 'B203', 'date' => date('Y-m-d', strtotime('+12 days'))],
-                    ['room' => 'D407', 'date' => date('Y-m-d', strtotime('+15 days'))]
-                ]
-            ]
-        ];
-    }
 
     public function systemLogs()
     {

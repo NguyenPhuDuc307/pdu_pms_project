@@ -45,6 +45,7 @@ ob_start();
         <div class="card-body p-4">
             <h4 class="card-title mb-4">Thêm đặt phòng</h4>
             <form method="POST" action="/pdu_pms_project/public/admin/add_booking">
+                <input type="hidden" name="user_id" id="user_id" value="">
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label for="user_type" class="form-label fw-semibold">Loại người dùng</label>
@@ -137,7 +138,10 @@ ob_start();
                         foreach ($data['rooms'] as $room):
                             $isRoomAvailable = true;
                             if ($start_time && $end_time) {
+                                // Kiểm tra xem phòng có trong danh sách phòng trống không
                                 $isRoomAvailable = in_array($room['id'], $data['available_rooms']);
+                                // Thêm log để debug
+                                error_log("Phòng {$room['id']} ({$room['name']}) " . ($isRoomAvailable ? "TRỐNG" : "ĐÃ ĐẶT"));
                             }
 
                             $roomClass = $isRoomAvailable ? 'bg-success-subtle border-success' : 'bg-danger-subtle border-danger opacity-50';
@@ -207,7 +211,7 @@ ob_start();
             const userType = document.getElementById('user_type').value;
             const teacherSelect = document.getElementById('teacher_select');
             const studentSelect = document.getElementById('student_select');
-
+            const userIdInput = document.getElementById('user_id');
             const classCodeInput = document.getElementById('class_code');
 
             if (userType === 'teacher') {
@@ -217,6 +221,8 @@ ob_start();
                 document.getElementById('student_id').removeAttribute('required');
                 // Bỏ thuộc tính required cho mã lớp khi người dùng là giảng viên
                 classCodeInput.removeAttribute('required');
+                // Cập nhật user_id khi thay đổi teacher_id
+                userIdInput.value = document.getElementById('teacher_id').value;
             } else {
                 teacherSelect.style.display = 'none';
                 studentSelect.style.display = 'block';
@@ -224,6 +230,8 @@ ob_start();
                 document.getElementById('teacher_id').removeAttribute('required');
                 // Thêm thuộc tính required cho mã lớp khi người dùng là sinh viên
                 classCodeInput.setAttribute('required', 'required');
+                // Cập nhật user_id khi thay đổi student_id
+                userIdInput.value = document.getElementById('student_id').value;
             }
         }
 
@@ -298,6 +306,8 @@ ob_start();
                 const teacherId = teacherIdInput.value;
                 const studentId = studentIdInput.value;
                 const status = statusInput.value;
+                // Sử dụng user_id từ teacher_id hoặc student_id
+                const userId = userType === 'teacher' ? teacherId : studentId;
 
                 // Chỉ gọi fetch nếu cả start_time và end_time đều có giá trị
                 if (startTime && endTime) {
@@ -322,13 +332,23 @@ ob_start();
                     const roomsContainer = document.querySelector('.row.row-cols-2.row-cols-sm-3.row-cols-md-4.row-cols-lg-6.g-3');
                     roomsContainer.innerHTML = '<div class="text-center my-3 w-100"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Đang tải...</span></div></div>';
 
+                    // Log dữ liệu được gửi đi để debug
+                    console.log('Gửi dữ liệu:', {
+                        start_time: startTime,
+                        end_time: endTime,
+                        class_code: classCode
+                    });
+
+                    // Cập nhật user_id trong form
+                    document.getElementById('user_id').value = userId;
+
                     fetch('/pdu_pms_project/public/admin/add_booking', {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',
                                 'X-Requested-With': 'XMLHttpRequest'
                             },
-                            body: `start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}&class_code=${encodeURIComponent(classCode)}&user_type=${encodeURIComponent(userType)}&teacher_id=${encodeURIComponent(teacherId)}&student_id=${encodeURIComponent(studentId)}&status=${encodeURIComponent(status)}`
+                            body: `start_time=${encodeURIComponent(startTime)}&end_time=${encodeURIComponent(endTime)}&class_code=${encodeURIComponent(classCode)}`
                         })
                         .then(response => response.text())
                         .then(html => {
@@ -389,12 +409,22 @@ ob_start();
 
             startTimeInput.addEventListener('change', updateRoomAvailability);
             endTimeInput.addEventListener('change', updateRoomAvailability);
+            teacherIdInput.addEventListener('change', function() {
+                document.getElementById('user_id').value = this.value;
+                updateRoomAvailability();
+            });
+            studentIdInput.addEventListener('change', function() {
+                document.getElementById('user_id').value = this.value;
+                updateRoomAvailability();
+            });
 
             // Kiểm tra form trước khi submit
             document.querySelector('form').addEventListener('submit', function(event) {
                 const userType = document.getElementById('user_type').value;
                 const teacherId = document.getElementById('teacher_id').value;
                 const studentId = document.getElementById('student_id').value;
+                // Sử dụng user_id từ teacher_id hoặc student_id
+                const userId = userType === 'teacher' ? teacherId : studentId;
                 const classCode = document.getElementById('class_code').value;
                 const startTime = document.getElementById('start_time').value;
                 const endTime = document.getElementById('end_time').value;

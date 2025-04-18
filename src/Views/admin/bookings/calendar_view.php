@@ -115,6 +115,10 @@ ob_start();
                         <span id="modal-class"></span>
                     </div>
                     <div class="mb-3">
+                        <label class="fw-bold">Lý do:</label>
+                        <span id="modal-purpose"></span>
+                    </div>
+                    <div class="mb-3">
                         <label class="fw-bold">Trạng thái:</label>
                         <span id="modal-status"></span>
                     </div>
@@ -122,6 +126,12 @@ ob_start();
                 <div class="modal-footer">
                     <a href="#" id="modal-edit-link" class="btn btn-warning">
                         <i class="fas fa-edit me-1"></i> Chỉnh sửa
+                    </a>
+                    <a href="#" id="modal-approve-link" class="btn btn-success">
+                        <i class="fas fa-check-circle me-1"></i> Duyệt
+                    </a>
+                    <a href="#" id="modal-reject-link" class="btn btn-danger">
+                        <i class="fas fa-times-circle me-1"></i> Từ chối
                     </a>
                     <a href="#" id="modal-delete-link" class="btn btn-danger">
                         <i class="fas fa-trash me-1"></i> Xóa
@@ -197,9 +207,9 @@ document.addEventListener('DOMContentLoaded', function() {
             var roomFilter = document.getElementById('room-filter').value;
             var userFilter = document.getElementById('user-filter').value;
             var statusFilter = document.getElementById('status-filter').value;
-            
+
             // Gọi API để lấy dữ liệu
-            fetch('/pdu_pms_project/public/admin/get_bookings_json?start=' + info.startStr + '&end=' + info.endStr + 
+            fetch('/pdu_pms_project/public/admin/get_bookings_json?start=' + info.startStr + '&end=' + info.endStr +
                   '&room_id=' + roomFilter + '&user_id=' + userFilter + '&status=' + statusFilter)
                 .then(response => response.json())
                 .then(data => {
@@ -220,25 +230,32 @@ document.addEventListener('DOMContentLoaded', function() {
                                 statusClass = 'status-cancelled';
                                 break;
                         }
-                        
+
+                        // Xử lý dữ liệu để tránh undefined
+                        const userName = booking.user_name || 'Không xác định';
+                        const roomName = booking.room_name || 'Không xác định';
+                        const classCode = booking.class_code || 'Không có';
+                        const purpose = booking.purpose || '';
+
                         return {
                             id: booking.id,
-                            title: booking.room_name + ' - ' + (booking.teacher_name || booking.student_name),
+                            title: roomName + ' - ' + classCode + ' - ' + userName,
                             start: booking.start_time,
                             end: booking.end_time,
                             extendedProps: {
-                                room_name: booking.room_name,
-                                user_name: booking.teacher_name || booking.student_name,
-                                class_code: booking.class_code,
-                                status: booking.status,
+                                room_name: roomName,
+                                user_name: userName,
+                                user_role: booking.user_role || 'Không xác định',
+                                class_code: classCode,
+                                purpose: purpose,
+                                status: booking.status || 'Không xác định',
                                 room_id: booking.room_id,
-                                teacher_id: booking.teacher_id,
-                                student_id: booking.student_id
+                                user_id: booking.user_id
                             },
                             classNames: [statusClass]
                         };
                     });
-                    
+
                     successCallback(events);
                 })
                 .catch(error => {
@@ -249,42 +266,95 @@ document.addEventListener('DOMContentLoaded', function() {
         eventClick: function(info) {
             // Hiển thị modal chi tiết khi click vào sự kiện
             var booking = info.event;
-            
-            document.getElementById('modal-room').textContent = booking.extendedProps.room_name;
-            document.getElementById('modal-user').textContent = booking.extendedProps.user_name;
-            document.getElementById('modal-start').textContent = new Date(booking.start).toLocaleString('vi-VN');
-            document.getElementById('modal-end').textContent = new Date(booking.end).toLocaleString('vi-VN');
-            document.getElementById('modal-class').textContent = booking.extendedProps.class_code || 'Không có';
-            
-            // Hiển thị trạng thái
-            var statusText = '';
-            var statusClass = '';
-            switch(booking.extendedProps.status) {
-                case 'được duyệt':
-                    statusText = 'Được duyệt';
-                    statusClass = 'text-success';
-                    break;
-                case 'chờ duyệt':
-                    statusText = 'Chờ duyệt';
-                    statusClass = 'text-warning';
-                    break;
-                case 'từ chối':
-                    statusText = 'Từ chối';
-                    statusClass = 'text-danger';
-                    break;
-                case 'đã hủy':
-                    statusText = 'Đã hủy';
-                    statusClass = 'text-secondary';
-                    break;
+            var props = booking.extendedProps || {};
+
+            // Kiểm tra và gán giá trị mặc định nếu không có dữ liệu
+            document.getElementById('modal-room').textContent = props.room_name || 'Không xác định';
+
+            // Hiển thị tên người dùng và vai trò
+            let userDisplay = props.user_name || 'Không xác định';
+            if (props.user_role) {
+                let roleText = '';
+                switch(props.user_role) {
+                    case 'teacher':
+                        roleText = 'Giảng viên';
+                        break;
+                    case 'student':
+                        roleText = 'Sinh viên';
+                        break;
+                    case 'admin':
+                        roleText = 'Quản trị viên';
+                        break;
+                    default:
+                        roleText = props.user_role;
+                }
+                userDisplay += ' (' + roleText + ')';
             }
-            
+            document.getElementById('modal-user').textContent = userDisplay;
+
+            document.getElementById('modal-start').textContent = booking.start ? new Date(booking.start).toLocaleString('vi-VN') : 'Không xác định';
+            document.getElementById('modal-end').textContent = booking.end ? new Date(booking.end).toLocaleString('vi-VN') : 'Không xác định';
+            document.getElementById('modal-class').textContent = props.class_code || 'Không có';
+            document.getElementById('modal-purpose').textContent = props.purpose || 'Không có';
+
+            // Hiển thị trạng thái
+            var statusText = 'Không xác định';
+            var statusClass = 'text-muted';
+
+            // Kiểm tra trạng thái có tồn tại không
+            if (props.status) {
+                switch(props.status) {
+                    case 'được duyệt':
+                        statusText = 'Được duyệt';
+                        statusClass = 'text-success';
+                        break;
+                    case 'chờ duyệt':
+                        statusText = 'Chờ duyệt';
+                        statusClass = 'text-warning';
+                        break;
+                    case 'từ chối':
+                        statusText = 'Từ chối';
+                        statusClass = 'text-danger';
+                        break;
+                    case 'đã hủy':
+                        statusText = 'Đã hủy';
+                        statusClass = 'text-secondary';
+                        break;
+                    default:
+                        statusText = props.status; // Hiển thị trạng thái nguyên bản nếu không khớp với các case
+                }
+            }
+
             document.getElementById('modal-status').textContent = statusText;
             document.getElementById('modal-status').className = statusClass;
-            
+
             // Cập nhật link chỉnh sửa và xóa
-            document.getElementById('modal-edit-link').href = '/pdu_pms_project/public/admin/edit_booking/' + booking.id;
-            document.getElementById('modal-delete-link').setAttribute('data-id', booking.id);
-            
+            if (booking.id) {
+                document.getElementById('modal-edit-link').href = '/pdu_pms_project/public/admin/edit_booking/' + booking.id;
+                document.getElementById('modal-delete-link').setAttribute('data-id', booking.id);
+                document.getElementById('modal-approve-link').setAttribute('data-id', booking.id);
+                document.getElementById('modal-reject-link').setAttribute('data-id', booking.id);
+                
+                // Hiển thị hoặc ẩn nút duyệt và từ chối dựa trên trạng thái
+                if (props.status === 'chờ duyệt') {
+                    document.getElementById('modal-approve-link').style.display = 'inline-block';
+                    document.getElementById('modal-reject-link').style.display = 'inline-block';
+                } else {
+                    document.getElementById('modal-approve-link').style.display = 'none';
+                    document.getElementById('modal-reject-link').style.display = 'none';
+                }
+                
+                // Hiển thị các nút thao tác
+                document.getElementById('modal-edit-link').style.display = 'inline-block';
+                document.getElementById('modal-delete-link').style.display = 'inline-block';
+            } else {
+                // Ẩn các nút thao tác nếu không có ID
+                document.getElementById('modal-edit-link').style.display = 'none';
+                document.getElementById('modal-delete-link').style.display = 'none';
+                document.getElementById('modal-approve-link').style.display = 'none';
+                document.getElementById('modal-reject-link').style.display = 'none';
+            }
+
             // Hiển thị modal
             var bookingDetailModal = new bootstrap.Modal(document.getElementById('bookingDetailModal'));
             bookingDetailModal.show();
@@ -296,29 +366,49 @@ document.addEventListener('DOMContentLoaded', function() {
             window.location.href = '/pdu_pms_project/public/admin/add_booking?start_time=' + startTime + '&end_time=' + endTime;
         }
     });
-    
+
     calendar.render();
-    
+
     // Xử lý sự kiện thay đổi bộ lọc
     document.getElementById('room-filter').addEventListener('change', function() {
         calendar.refetchEvents();
     });
-    
+
     document.getElementById('user-filter').addEventListener('change', function() {
         calendar.refetchEvents();
     });
-    
+
     document.getElementById('status-filter').addEventListener('change', function() {
         calendar.refetchEvents();
     });
-    
+
     // Xử lý xóa đặt phòng
     document.getElementById('modal-delete-link').addEventListener('click', function(e) {
         e.preventDefault();
-        
+
         if (confirm('Bạn có chắc chắn muốn xóa đặt phòng này?')) {
             var bookingId = this.getAttribute('data-id');
             window.location.href = '/pdu_pms_project/public/admin/delete_booking/' + bookingId;
+        }
+    });
+
+    // Xử lý duyệt đặt phòng
+    document.getElementById('modal-approve-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (confirm('Bạn có chắc chắn muốn duyệt đặt phòng này?')) {
+            var bookingId = this.getAttribute('data-id');
+            window.location.href = '/pdu_pms_project/public/admin/approve_booking/' + bookingId;
+        }
+    });
+    
+    // Xử lý từ chối đặt phòng
+    document.getElementById('modal-reject-link').addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        if (confirm('Bạn có chắc chắn muốn từ chối đặt phòng này?')) {
+            var bookingId = this.getAttribute('data-id');
+            window.location.href = '/pdu_pms_project/public/admin/reject_booking/' + bookingId;
         }
     });
 });

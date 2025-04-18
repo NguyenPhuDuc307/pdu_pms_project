@@ -36,101 +36,105 @@ require_once __DIR__ . '/../../layouts/admin_header.php';
                     <div class="row">
                         <div class="col-md-6">
                             <h5 class="mb-3">Thông tin đặt phòng</h5>
-                            <table class="table table-bordered">
-                                <tbody>
-                                    <tr>
-                                        <th>ID</th>
-                                        <td><?php echo htmlspecialchars($booking['id']); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Phòng</th>
-                                        <td><?php echo htmlspecialchars($booking['room_name'] ?? 'N/A'); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Thời gian bắt đầu</th>
-                                        <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($booking['start_time']))); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Thời gian kết thúc</th>
-                                        <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($booking['end_time']))); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Mục đích sử dụng</th>
-                                        <td><?php echo htmlspecialchars($booking['purpose'] ?? 'Không có'); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Trạng thái</th>
-                                        <td>
-                                            <?php
-                                            $statusClass = '';
-                                            $statusText = '';
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th>ID</th>
+                                            <td><?php echo htmlspecialchars($booking['id']); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Phòng</th>
+                                            <td><?php echo htmlspecialchars($booking['room_name'] ?? 'N/A'); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Thời gian bắt đầu</th>
+                                            <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($booking['start_time']))); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Thời gian kết thúc</th>
+                                            <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($booking['end_time']))); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Mục đích sử dụng</th>
+                                            <td><?php echo htmlspecialchars($booking['purpose'] ?? 'Không có'); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Trạng thái</th>
+                                            <td>
+                                                <?php
+                                                $statusClass = '';
+                                                $statusText = '';
 
-                                            switch ($booking['status']) {
-                                                case 'pending':
-                                                    $statusClass = 'bg-warning-subtle text-warning';
-                                                    $statusText = 'Chờ duyệt';
-                                                    break;
-                                                case 'approved':
-                                                    $statusClass = 'bg-success-subtle text-success';
-                                                    $statusText = 'Đã duyệt';
-                                                    break;
-                                                case 'rejected':
-                                                    $statusClass = 'bg-danger-subtle text-danger';
-                                                    $statusText = 'Từ chối';
-                                                    break;
-                                                case 'cancelled':
-                                                    $statusClass = 'bg-secondary-subtle text-secondary';
-                                                    $statusText = 'Đã hủy';
-                                                    break;
-                                                case 'completed':
-                                                    $statusClass = 'bg-primary-subtle text-primary';
-                                                    $statusText = 'Hoàn thành';
-                                                    break;
-                                                default:
-                                                    $statusClass = 'bg-secondary-subtle text-secondary';
-                                                    $statusText = 'Không xác định';
-                                            }
-                                            ?>
-                                            <span class="badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                                switch ($booking['status']) {
+                                                    case 'pending':
+                                                        $statusClass = 'bg-warning-subtle text-warning';
+                                                        $statusText = 'Chờ duyệt';
+                                                        break;
+                                                    case 'approved':
+                                                        $statusClass = 'bg-success-subtle text-success';
+                                                        $statusText = 'Đã duyệt';
+                                                        break;
+                                                    case 'rejected':
+                                                        $statusClass = 'bg-danger-subtle text-danger';
+                                                        $statusText = 'Từ chối';
+                                                        break;
+                                                    case 'cancelled':
+                                                        $statusClass = 'bg-secondary-subtle text-secondary';
+                                                        $statusText = 'Đã hủy';
+                                                        break;
+                                                    case 'completed':
+                                                        $statusClass = 'bg-primary-subtle text-primary';
+                                                        $statusText = 'Hoàn thành';
+                                                        break;
+                                                    default:
+                                                        $statusClass = 'bg-secondary-subtle text-secondary';
+                                                        $statusText = 'Không xác định';
+                                                }
+                                                ?>
+                                                <span class="badge <?php echo $statusClass; ?>"><?php echo $statusText; ?></span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <h5 class="mb-3">Thông tin người dùng</h5>
-                            <table class="table table-bordered">
-                                <tbody>
-                                    <tr>
-                                        <th>Loại người dùng</th>
-                                        <td>
-                                            <?php
-                                            echo htmlspecialchars($booking['user_role'] === 'teacher' ? 'Giáo viên' : 'Sinh viên');
-                                            ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>ID người dùng</th>
-                                        <td>
-                                            <?php echo htmlspecialchars($booking['user_id'] ?? 'N/A'); ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Tên người dùng</th>
-                                        <td>
-                                            <?php echo htmlspecialchars($booking['user_name'] ?? 'N/A'); ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <th>Mã lớp</th>
-                                        <td><?php echo htmlspecialchars($booking['class_code'] ?? 'N/A'); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Ngày tạo</th>
-                                        <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($booking['created_at']))); ?></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <tr>
+                                            <th>Loại người dùng</th>
+                                            <td>
+                                                <?php
+                                                echo htmlspecialchars($booking['user_role'] === 'teacher' ? 'Giáo viên' : 'Sinh viên');
+                                                ?>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>ID người dùng</th>
+                                            <td>
+                                                <?php echo htmlspecialchars($booking['user_id'] ?? 'N/A'); ?>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Tên người dùng</th>
+                                            <td>
+                                                <?php echo htmlspecialchars($booking['user_name'] ?? 'N/A'); ?>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <th>Mã lớp</th>
+                                            <td><?php echo htmlspecialchars($booking['class_code'] ?? 'N/A'); ?></td>
+                                        </tr>
+                                        <tr>
+                                            <th>Ngày tạo</th>
+                                            <td><?php echo htmlspecialchars(date('d/m/Y H:i', strtotime($booking['created_at']))); ?></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
 

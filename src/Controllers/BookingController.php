@@ -5,7 +5,6 @@ namespace Controllers;
 use Models\BookingModel;
 use Models\RoomModel;
 use Models\UserModel;
-use Helpers\AlertHelper;
 
 class BookingController
 {
@@ -50,7 +49,7 @@ class BookingController
                     $user_type = $data['user_type'] ?? 'teacher';
                     $teacher_id = $user_type === 'teacher' ? ($data['teacher_id'] ?? null) : null;
                     $student_id = $user_type === 'student' ? ($data['student_id'] ?? null) : null;
-                    
+
                     // Admin có thể đặt cho giáo viên hoặc sinh viên
                     if ($user_type === 'teacher' && !$teacher_id) {
                         return [
@@ -68,17 +67,17 @@ class BookingController
                             'available_rooms' => []
                         ];
                     }
-                    
+
                     // Sử dụng user_id từ teacher_id hoặc student_id
                     $user_id = $user_type === 'teacher' ? $teacher_id : $student_id;
                     break;
-                    
+
                 case 'teacher':
                 case 'student':
                     // Giáo viên và sinh viên đặt cho chính mình
                     $user_id = $userId;
                     break;
-                    
+
                 default:
                     return [
                         'error' => 'Vai trò không hợp lệ',
@@ -90,6 +89,10 @@ class BookingController
 
             // Kiểm tra các trường bắt buộc
             if ($room_id && $start_time && $end_time && $purpose) {
+                // Thêm log để debug
+                error_log("BookingController::bookRoom - Dữ liệu POST: " . json_encode($_POST));
+                error_log("BookingController::bookRoom - user_id = $user_id");
+
                 // Kiểm tra xung đột lịch
                 $conflict = $this->bookingModel->checkBookingConflict($room_id, $start_time, $end_time);
                 if ($conflict) {
@@ -138,13 +141,31 @@ class BookingController
             } else if ($isAjaxRequest && $start_time && $end_time) {
                 // Nếu là AJAX request để kiểm tra phòng trống
                 $available_rooms = [];
+
+                // Thêm log để debug
+                error_log("BookingController::bookRoom (AJAX) - Kiểm tra phòng trống từ $start_time đến $end_time");
+                error_log("BookingController::bookRoom (AJAX) - Dữ liệu POST: " . json_encode($_POST));
+
+                // Lấy tất cả phòng
                 $rooms = $this->roomModel->getAllRooms();
+
+                // Thêm log để debug
+                error_log("BookingController::bookRoom (AJAX) - Kiểm tra tất cả phòng từ $start_time đến $end_time");
+
+                // Kiểm tra từng phòng
                 foreach ($rooms as $room) {
-                    if (!$this->bookingModel->checkBookingConflict($room['id'], $start_time, $end_time)) {
+                    // Kiểm tra xung đột
+                    $isAvailable = !$this->bookingModel->checkBookingConflict($room['id'], $start_time, $end_time);
+
+                    // Nếu phòng trống, thêm vào danh sách phòng khả dụng
+                    if ($isAvailable) {
                         $available_rooms[] = $room['id'];
                     }
+
+                    // Ghi log kết quả
+                    error_log("BookingController::bookRoom (AJAX) - Phòng {$room['id']} ({$room['name']}) " . ($isAvailable ? "TRỐNG" : "ĐÃ ĐẶT"));
                 }
-                
+
                 return [
                     'rooms' => $rooms,
                     'available_rooms' => $available_rooms
@@ -169,15 +190,21 @@ class BookingController
         $start_time = $_POST['start_time'] ?? null;
         $end_time = $_POST['end_time'] ?? null;
         $available_rooms = [];
-        
+
         if ($start_time && $end_time) {
             $start_time = date('Y-m-d H:i:s', strtotime($start_time));
             $end_time = date('Y-m-d H:i:s', strtotime($end_time));
+
+            // Thêm log để debug
+            error_log("BookingController::bookRoom - Kiểm tra phòng trống từ $start_time đến $end_time");
+
             $rooms = $this->roomModel->getAllRooms();
             foreach ($rooms as $room) {
-                if (!$this->bookingModel->checkBookingConflict($room['id'], $start_time, $end_time)) {
+                $isAvailable = !$this->bookingModel->checkBookingConflict($room['id'], $start_time, $end_time);
+                if ($isAvailable) {
                     $available_rooms[] = $room['id'];
                 }
+                error_log("BookingController::bookRoom - Phòng {$room['id']} ({$room['name']}) " . ($isAvailable ? "TRỐNG" : "ĐÃ ĐẶT"));
             }
         }
 
@@ -232,15 +259,20 @@ class BookingController
         $start_time = date('Y-m-d H:i:s', strtotime($start_time));
         $end_time = date('Y-m-d H:i:s', strtotime($end_time));
 
+        // Thêm log để debug
+        error_log("BookingController::getAvailableRooms - Kiểm tra phòng trống từ $start_time đến $end_time");
+
         // Lấy tất cả phòng
         $rooms = $this->roomModel->getAllRooms();
         $available_rooms = [];
 
         // Kiểm tra từng phòng
         foreach ($rooms as $room) {
-            if (!$this->bookingModel->checkBookingConflict($room['id'], $start_time, $end_time)) {
+            $isAvailable = !$this->bookingModel->checkBookingConflict($room['id'], $start_time, $end_time);
+            if ($isAvailable) {
                 $available_rooms[] = $room;
             }
+            error_log("BookingController::getAvailableRooms - Phòng {$room['id']} ({$room['name']}) " . ($isAvailable ? "TRỐNG" : "ĐÃ ĐẶT"));
         }
 
         // Trả về kết quả dưới dạng JSON

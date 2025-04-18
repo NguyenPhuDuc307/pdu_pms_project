@@ -32,8 +32,7 @@ class RoomModel
         $stmt = $this->db->prepare(
             "SELECT r.id, r.name, r.capacity,
                     'Phòng thực hành' as room_type_name,
-                    COUNT(b.id) AS booking_count,
-                    COUNT(b.id) * 100 / (SELECT COUNT(*) FROM bookings) AS usage_percent
+                    COUNT(b.id) AS booking_count
              FROM rooms r
              LEFT JOIN bookings b ON r.id = b.room_id
              GROUP BY r.id, r.name, r.capacity
@@ -44,55 +43,9 @@ class RoomModel
         $stmt->execute();
         $rooms = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        // Nếu không có dữ liệu đặt phòng, tạo dữ liệu mẫu để tránh lỗi
-        if (empty($rooms)) {
-            $rooms = [];
-            // Lấy các loại phòng
-            $roomTypes = $this->getRoomTypes();
-
-            // Nếu có loại phòng, tạo dữ liệu mẫu
-            if (!empty($roomTypes)) {
-                foreach ($roomTypes as $index => $type) {
-                    if ($index >= $limit) break;
-
-                    $rooms[] = [
-                        'id' => $index + 1,
-                        'name' => 'Phòng ' . chr(65 + $index) . ($index * 100 + 1),
-                        'room_type_id' => $type['id'] ?? null,
-                        'room_type_name' => $type['name'] ?? 'Loại phòng ' . ($index + 1),
-                        'booking_count' => rand(5, 30),
-                        'usage_percent' => rand(30, 90)
-                    ];
-                }
-            } else {
-                // Nếu không có loại phòng, tạo dữ liệu mẫu chung
-                for ($i = 0; $i < $limit; $i++) {
-                    $rooms[] = [
-                        'id' => $i + 1,
-                        'name' => 'Phòng ' . chr(65 + $i) . ($i * 100 + 1),
-                        'room_type_id' => null,
-                        'room_type_name' => 'Loại phòng ' . ($i + 1),
-                        'booking_count' => rand(5, 30),
-                        'usage_percent' => rand(30, 90)
-                    ];
-                }
-            }
-        } else {
-            // Đảm bảo các giá trị usage_percent được làm tròn và giới hạn
-            foreach ($rooms as &$room) {
-                // Đảm bảo room_type_name có giá trị
-                if (empty($room['room_type_name'])) {
-                    $room['room_type_name'] = 'Phòng chung';
-                }
-
-                // Làm tròn và giới hạn tỷ lệ sử dụng
-                $room['usage_percent'] = round(min(max((float)($room['usage_percent'] ?? 0), 0), 100));
-
-                // Nếu không có đặt phòng, đặt giá trị mặc định
-                if ($room['booking_count'] == 0) {
-                    $room['usage_percent'] = 0;
-                }
-            }
+        // Đặt tên loại phòng mặc định
+        foreach ($rooms as &$room) {
+            $room['room_type_name'] = 'Phòng thực hành';
         }
 
         return $rooms;

@@ -112,12 +112,6 @@ ob_start();
 <?php include __DIR__ . '/../../components/page_header.php'; ?>
 
 <div class="py-2">
-    <div class="text-end mb-3">
-        <a href="/pdu_pms_project/public/admin/reports" class="btn btn-primary">
-            <i class="fas fa-download me-1"></i> Xuất báo cáo
-        </a>
-    </div>
-
     <!-- Stats Cards -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -195,180 +189,15 @@ ob_start();
 
     <!-- Main Content Row -->
     <div class="row">
-        <!-- Recent Activities -->
-        <div class="col-xl-8 col-lg-7 mb-4">
+        <!-- Placeholder for future content -->
+        <div class="col-12 mb-4">
             <div class="card shadow-sm">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-primary">Hoạt động gần đây</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="dropdownMenuLink">
-                            <li><a class="dropdown-item" href="#">Tất cả hoạt động</a></li>
-                            <li><a class="dropdown-item" href="#">Chỉ đặt phòng</a></li>
-                            <li><a class="dropdown-item" href="#">Chỉ người dùng</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Xuất dữ liệu</a></li>
-                        </ul>
-                    </div>
+                    <h6 class="m-0 fw-bold text-primary">Thông tin hệ thống</h6>
                 </div>
                 <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>THỜI GIAN</th>
-                                    <th>NGƯỜI DÙNG</th>
-                                    <th>HOẠT ĐỘNG</th>
-                                    <th>TRẠNG THÁI</th>
-                                    <th>THAO TÁC</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (isset($data['recent_activities']) && !empty($data['recent_activities'])): ?>
-                                    <?php foreach ($data['recent_activities'] as $activity): ?>
-                                        <?php
-                                        // Define status class and label based on activity type and status
-                                        $statusClass = 'bg-secondary';
-                                        $statusLabel = 'Không xác định';
-
-                                        if (isset($activity['type'])) {
-                                            if ($activity['type'] === 'booking') {
-                                                $bookingStatus = $activity['status'] ?? '';
-
-                                                switch (strtolower($bookingStatus)) {
-                                                    case 'pending':
-                                                        $statusClass = 'bg-warning';
-                                                        $statusLabel = 'Chờ duyệt';
-                                                        break;
-                                                    case 'approved':
-                                                        $statusClass = 'bg-success';
-                                                        $statusLabel = 'Đã duyệt';
-                                                        break;
-                                                    case 'rejected':
-                                                        $statusClass = 'bg-danger';
-                                                        $statusLabel = 'Từ chối';
-                                                        break;
-                                                    case 'cancelled':
-                                                        $statusClass = 'bg-secondary';
-                                                        $statusLabel = 'Đã hủy';
-                                                        break;
-                                                }
-                                            } elseif ($activity['type'] === 'user_registration') {
-                                                $statusClass = 'bg-info';
-                                                $statusLabel = 'Đăng ký mới';
-                                            } elseif ($activity['type'] === 'room_issue') {
-                                                $statusClass = 'bg-danger';
-                                                $statusLabel = 'Sự cố';
-                                            }
-                                        }
-
-                                        // Generate initials for avatar
-                                        $initials = '';
-                                        $fullname = $activity['user_name'] ?? '';
-                                        $nameParts = explode(' ', $fullname);
-                                        if (count($nameParts) > 0) {
-                                            $lastName = end($nameParts);
-                                            $initials = mb_substr($lastName, 0, 1, 'UTF-8');
-                                        }
-
-                                        // Random background color for avatar
-                                        $bgColors = ['#4CAF50', '#2196F3', '#9C27B0', '#F44336', '#FF9800'];
-                                        $colorIndex = isset($activity['user_id']) ? $activity['user_id'] % count($bgColors) : 0;
-                                        $bgColor = $bgColors[$colorIndex];
-                                        ?>
-                                        <tr>
-                                            <td><?= isset($activity['timestamp']) ? date('d/m/Y H:i', strtotime($activity['timestamp'])) : '-' ?></td>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar-sm me-2" style="background-color: <?= $bgColor ?>;"><?= $initials ?></div>
-                                                    <?= htmlspecialchars($activity['user_name'] ?? 'Không xác định') ?>
-                                                </div>
-                                            </td>
-                                            <td><?= htmlspecialchars($activity['message'] ?? 'Không có thông tin') ?></td>
-                                            <td><span class="badge <?= $statusClass ?>"><?= $statusLabel ?></span></td>
-                                            <td>
-                                                <?php if ($activity['type'] === 'booking' && isset($activity['booking_id'])): ?>
-                                                    <a href="/pdu_pms_project/public/admin/booking_detail/<?= $activity['booking_id'] ?>" class="btn btn-sm btn-link">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                <?php elseif ($activity['type'] === 'user_registration' && isset($activity['user_id'])): ?>
-                                                    <a href="/pdu_pms_project/public/admin/edit_user/<?= $activity['user_id'] ?>" class="btn btn-sm btn-link">
-                                                        <i class="fas fa-eye"></i>
-                                                    </a>
-                                                <?php else: ?>
-                                                    <button class="btn btn-sm btn-link" disabled><i class="fas fa-eye"></i></button>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <tr>
-                                        <td colspan="5" class="text-center py-4">Không có hoạt động nào gần đây</td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="text-center mt-3">
-                        <a href="/pdu_pms_project/public/admin/manage_bookings" class="btn btn-primary btn-sm">
-                            Xem tất cả <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Room Usage Chart -->
-        <div class="col-xl-4 col-lg-5 mb-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h6 class="m-0 fw-bold text-primary">Sử dụng phòng</h6>
-                    <div class="dropdown no-arrow">
-                        <a class="dropdown-toggle" href="#" role="button" id="roomUsageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="roomUsageDropdown">
-                            <li><a class="dropdown-item" href="#">Tuần này</a></li>
-                            <li><a class="dropdown-item" href="#">Tháng này</a></li>
-                            <li><a class="dropdown-item" href="#">Năm nay</a></li>
-                            <li>
-                                <hr class="dropdown-divider">
-                            </li>
-                            <li><a class="dropdown-item" href="#">Xuất dữ liệu</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="card-body p-4">
-                    <div class="chart-pie mb-4">
-                        <canvas id="roomUsageChart" height="250"></canvas>
-                    </div>
-                    <div class="mt-4">
-                        <?php if (!empty($data['most_used_rooms'])): ?>
-                            <?php foreach ($data['most_used_rooms'] as $index => $room): ?>
-                                <?php
-                                $colors = ['primary', 'success', 'info', 'warning', 'danger'];
-                                $colorIndex = $index % count($colors);
-                                $color = $colors[$colorIndex];
-                                ?>
-                                <div class="mb-3">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <div><i class="fas fa-circle text-<?= $color ?> me-2"></i> <?= htmlspecialchars($room['room_type_name']) ?></div>
-                                        <div class="fw-bold"><?= $room['usage_percent'] ?>%</div>
-                                    </div>
-                                    <div class="progress" style="height: 10px;">
-                                        <div class="progress-bar bg-<?= $color ?>" role="progressbar" style="width: <?= $room['usage_percent'] ?>%" aria-valuenow="<?= $room['usage_percent'] ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="alert alert-info">
-                                Không có dữ liệu sử dụng phòng.
-                            </div>
-                        <?php endif; ?>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i> Chào mừng đến với hệ thống Quản lý Phòng Đào tạo. Sử dụng menu bên trái để truy cập các chức năng của hệ thống.
                     </div>
                 </div>
             </div>
@@ -377,56 +206,7 @@ ob_start();
 
     <!-- Removed unnecessary closing div -->
 
-    <!-- Add Chart.js library -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    <script>
-        // Room Usage Chart
-        document.addEventListener('DOMContentLoaded', function() {
-            const ctx = document.getElementById('roomUsageChart').getContext('2d');
-            const roomUsageChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: <?= json_encode(array_column($data['most_used_rooms'] ?? [], 'room_type_name')) ?>,
-                    datasets: [{
-                        data: <?= json_encode(array_column($data['most_used_rooms'] ?? [], 'usage_percent')) ?>,
-                        backgroundColor: [
-                            'rgba(78, 115, 223, 0.9)',
-                            'rgba(40, 167, 69, 0.9)',
-                            'rgba(23, 162, 184, 0.9)',
-                            'rgba(255, 193, 7, 0.9)',
-                            'rgba(220, 53, 69, 0.9)'
-                        ],
-                        borderWidth: 0,
-                        hoverOffset: 6
-                    }]
-                },
-                options: {
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            padding: 12,
-                            titleFont: {
-                                size: 14
-                            },
-                            bodyFont: {
-                                size: 13
-                            },
-                            displayColors: false
-                        }
-                    },
-                    cutout: '75%',
-                    animation: {
-                        animateScale: true,
-                        animateRotate: true
-                    }
-                }
-            });
-        });
-    </script>
+
 
     <?php
     // Lấy nội dung đã buffer

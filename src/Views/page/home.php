@@ -1,9 +1,9 @@
 <?php require_once __DIR__ . '/../layouts/header.php'; ?>
 
-<div class="content-wrapper" style="position: relative; z-index: 5; margin: 0; padding: 0; height: auto; overflow: visible;">
+<div class="content-wrapper pt-5" style="position: relative; z-index: 5; margin: 0; padding: 0; height: auto; overflow: visible;">
     <!-- Hero Section -->
-    <section class="bg-primary text-white mb-5" style="position: relative; z-index: 5; margin: 0; padding: 0;">
-        <div class="container py-5" style="padding-top: 100px !important;">
+    <section class="bg-primary text-white mb-3 px-3" style="position: relative; z-index: 5; margin: 0; padding: 0;">
+        <div class="container pb-5">
             <div class="row align-items-center">
                 <div class="col-lg-6 mb-4 mb-lg-0">
                     <h1 class="display-4 fw-bold mb-3">Hệ thống Quản lý Phòng Đào tạo</h1>

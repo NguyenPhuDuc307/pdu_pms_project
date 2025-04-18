@@ -94,17 +94,20 @@ class BookingModel
 
     public function checkBookingConflict($roomId, $startTime, $endTime, $bookingId = null)
     {
+        // Thêm log để debug
+        error_log("BookingModel::checkBookingConflict - Tham số đầu vào: roomId=$roomId, startTime=$startTime, endTime=$endTime, bookingId=$bookingId");
+
         // Kiểm tra xem có booking nào xung đột với khoảng thời gian này không
-        $query = "SELECT COUNT(*) FROM bookings
+        $query = "SELECT id, start_time, end_time FROM bookings
               WHERE room_id = ? AND status IN ('được duyệt', 'đã duyệt', 'chờ duyệt')
               AND (
-                  (start_time < ? AND end_time > ?) OR  -- Booking hiện tại bắt đầu trong khoảng thời gian của booking khác
-                  (start_time < ? AND end_time > ?) OR  -- Booking hiện tại kết thúc trong khoảng thời gian của booking khác
+                  (start_time <= ? AND end_time > ?) OR  -- Booking hiện tại bắt đầu trong khoảng thời gian của booking khác
+                  (start_time < ? AND end_time >= ?) OR  -- Booking hiện tại kết thúc trong khoảng thời gian của booking khác
                   (start_time >= ? AND end_time <= ?) OR -- Booking hiện tại nằm hoàn toàn trong booking khác
                   (start_time <= ? AND end_time >= ?)    -- Booking hiện tại bao trùm hoàn toàn booking khác
               )";
 
-        $params = [$roomId, $endTime, $startTime, $endTime, $startTime, $startTime, $endTime, $startTime, $endTime];
+        $params = [$roomId, $startTime, $startTime, $endTime, $endTime, $startTime, $endTime, $startTime, $endTime];
 
         // Nếu đang cập nhật booking hiện có, loại trừ booking đó khỏi kiểm tra xung đột
         if ($bookingId) {
@@ -112,9 +115,29 @@ class BookingModel
             $params[] = $bookingId;
         }
 
-        $stmt = $this->db->prepare($query);
-        $stmt->execute($params);
-        return $stmt->fetchColumn() > 0;
+        // Thêm log để debug
+        error_log("BookingModel::checkBookingConflict - Kiểm tra xung đột cho phòng $roomId từ $startTime đến $endTime");
+
+        try {
+            $stmt = $this->db->prepare($query);
+            $stmt->execute($params);
+            $conflictingBookings = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $result = count($conflictingBookings) > 0;
+
+            if ($result) {
+                foreach ($conflictingBookings as $booking) {
+                    error_log("BookingModel::checkBookingConflict - Xung đột với booking ID {$booking['id']} ({$booking['start_time']} - {$booking['end_time']})");
+                }
+            }
+
+            error_log("BookingModel::checkBookingConflict - Kết quả kiểm tra xung đột: " . ($result ? "Có xung đột" : "Không xung đột"));
+
+            return $result;
+        } catch (\Exception $e) {
+            error_log("BookingModel::checkBookingConflict - Lỗi: " . $e->getMessage());
+            // Trả về false để đảm bảo phòng vẫn được hiển thị là trống nếu có lỗi
+            return false;
+        }
     }
 
     public function getYesterdayBookingsCount()
@@ -427,7 +450,19 @@ class BookingModel
      */
     public function getPendingBookingsCount()
     {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM bookings WHERE status = 'pending'");
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM bookings WHERE status = 'chờ duyệt'");
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result['count'] ?? 0;
+    }
+
+    /**
+     * Lấy tổng số đặt phòng
+     * @return int Tổng số đặt phòng
+     */
+    public function getTotalBookings()
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM bookings");
         $stmt->execute();
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['count'] ?? 0;

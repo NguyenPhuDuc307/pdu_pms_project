@@ -145,8 +145,8 @@ class TimetableModel
             // Nếu có room_id, tạo booking tương ứng
             if ($room_id !== null) {
                 $insertBookingStmt = $this->db->prepare(
-                    "INSERT INTO bookings (room_id, teacher_id, student_id, class_code, start_time, end_time, purpose, status)
-                     VALUES (?, ?, NULL, ?, ?, ?, ?, 'được duyệt')"
+                    "INSERT INTO bookings (room_id, user_id, class_code, start_time, end_time, purpose, status)
+                     VALUES (?, ?, ?, ?, ?, ?, 'được duyệt')"
                 );
                 $insertResult = $insertBookingStmt->execute([$room_id, $teacher_id, $class_code, $start_time, $end_time, "Giảng dạy theo lịch"]);
 
@@ -199,7 +199,7 @@ class TimetableModel
             // Tìm kiếm booking tương ứng với lịch dạy cũ
             $findOldBookingStmt = $this->db->prepare(
                 "SELECT id FROM bookings
-                 WHERE class_code = ? AND teacher_id = ? AND
+                 WHERE class_code = ? AND user_id = ? AND
                  ((start_time = ? AND end_time = ?) OR
                   (room_id = ? AND start_time BETWEEN ? AND ?))"
             );
@@ -220,7 +220,7 @@ class TimetableModel
                     // Cập nhật booking hiện có với tất cả thông tin mới
                     $updateBookingStmt = $this->db->prepare(
                         "UPDATE bookings
-                         SET room_id = ?, teacher_id = ?, class_code = ?,
+                         SET room_id = ?, user_id = ?, class_code = ?,
                              start_time = ?, end_time = ?, purpose = COALESCE(purpose, ?), status = 'được duyệt'
                          WHERE id = ?"
                     );
@@ -241,8 +241,8 @@ class TimetableModel
                 } else {
                     // Tạo booking mới
                     $insertBookingStmt = $this->db->prepare(
-                        "INSERT INTO bookings (room_id, teacher_id, student_id, class_code, start_time, end_time, purpose, status)
-                         VALUES (?, ?, NULL, ?, ?, ?, ?, 'được duyệt')"
+                        "INSERT INTO bookings (room_id, user_id, class_code, start_time, end_time, purpose, status)
+                         VALUES (?, ?, ?, ?, ?, ?, 'được duyệt')"
                     );
                     $insertResult = $insertBookingStmt->execute([$room_id, $teacher_id, $class_code, $start_time, $end_time, "Giảng dạy theo lịch"]);
 
@@ -302,7 +302,7 @@ class TimetableModel
             // Tìm và hủy booking tương ứng với các tiêu chí mở rộng
             $findBookingStmt = $this->db->prepare(
                 "SELECT id FROM bookings
-                 WHERE class_code = ? AND teacher_id = ? AND
+                 WHERE class_code = ? AND user_id = ? AND
                  ((start_time = ? AND end_time = ?) OR
                   (room_id = ? AND start_time BETWEEN ? AND ?))"
             );
@@ -449,7 +449,7 @@ class TimetableModel
             // Tìm booking tương ứng với các tiêu chí mở rộng
             $findBookingStmt = $this->db->prepare(
                 "SELECT id FROM bookings
-                 WHERE class_code = ? AND teacher_id = ? AND
+                 WHERE class_code = ? AND user_id = ? AND
                  ((start_time = ? AND end_time = ?) OR
                   (room_id = ? AND start_time BETWEEN ? AND ?))"
             );
@@ -494,6 +494,98 @@ class TimetableModel
             // Rollback transaction nếu có lỗi
             $this->db->rollBack();
             error_log("Lỗi khi hủy phòng trong lịch dạy và booking: " . $e->getMessage());
+            return false;
+        }
+    }
+    /**
+     * Xóa timetable dựa trên booking_id
+     * @param int $booking_id ID của booking
+     * @return bool true nếu thành công, false nếu thất bại
+     */
+    public function deleteTimetableByBookingId($booking_id)
+    {
+        try {
+            // Lấy thông tin booking
+            $bookingStmt = $this->db->prepare("SELECT * FROM bookings WHERE id = ?");
+            $bookingStmt->execute([$booking_id]);
+            $booking = $bookingStmt->fetch(\PDO::FETCH_ASSOC);
+
+            if (!$booking) {
+                return false;
+            }
+
+            // Bắt đầu transaction
+            $this->db->beginTransaction();
+
+            // Tìm timetable tương ứng với booking
+            // Lấy teacher_id từ user_id nếu user là giáo viên
+            $teacherId = null;
+            if ($booking['user_id']) {
+                $userStmt = $this->db->prepare("SELECT id FROM users WHERE id = ? AND role = 'teacher'");
+                $userStmt->execute([$booking['user_id']]);
+                $teacherId = $userStmt->fetchColumn();
+            }
+
+            // Xây dựng truy vấn dựa trên việc có teacher_id hay không
+            if ($teacherId) {
+                $findTimetableStmt = $this->db->prepare(
+                    "SELECT id FROM timetables
+                     WHERE room_id = ? AND teacher_id = ? AND
+                     ((start_time = ? AND end_time = ?) OR
+                      (class_code = ? AND start_time BETWEEN ? AND ?))"
+                );
+
+                // Thực hiện truy vấn với các tham số phù hợp
+                $findTimetableStmt->execute([
+                    $booking['room_id'],
+                    $teacherId,
+                    $booking['start_time'],
+                    $booking['end_time'],
+                    $booking['class_code'] ?? '',
+                    date('Y-m-d H:i:s', strtotime($booking['start_time']) - 3600), // 1 giờ trước
+                    date('Y-m-d H:i:s', strtotime($booking['end_time']) + 3600)   // 1 giờ sau
+                ]);
+            } else {
+                $findTimetableStmt = $this->db->prepare(
+                    "SELECT id FROM timetables
+                     WHERE room_id = ? AND
+                     ((start_time = ? AND end_time = ?) OR
+                      (class_code = ? AND start_time BETWEEN ? AND ?))"
+                );
+
+                // Thực hiện truy vấn với các tham số phù hợp
+                $findTimetableStmt->execute([
+                    $booking['room_id'],
+                    $booking['start_time'],
+                    $booking['end_time'],
+                    $booking['class_code'] ?? '',
+                    date('Y-m-d H:i:s', strtotime($booking['start_time']) - 3600), // 1 giờ trước
+                    date('Y-m-d H:i:s', strtotime($booking['end_time']) + 3600)   // 1 giờ sau
+                ]);
+            }
+            $timetable = $findTimetableStmt->fetch(\PDO::FETCH_ASSOC);
+
+            // Nếu tìm thấy timetable, cập nhật room_id thành NULL
+            if ($timetable) {
+                $updateTimetableStmt = $this->db->prepare("UPDATE timetables SET room_id = NULL WHERE id = ?");
+                $updateResult = $updateTimetableStmt->execute([$timetable['id']]);
+
+                if (!$updateResult) {
+                    $this->db->rollBack();
+                    error_log("Lỗi khi cập nhật timetable: " . json_encode($timetable));
+                    return false;
+                }
+            }
+
+            // Commit transaction
+            $this->db->commit();
+            return true;
+        } catch (\Exception $e) {
+            // Rollback transaction nếu có lỗi
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log("Lỗi khi xóa timetable theo booking_id: " . $e->getMessage());
             return false;
         }
     }

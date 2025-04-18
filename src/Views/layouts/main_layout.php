@@ -79,6 +79,39 @@ $title = $pageTitle ?? 'PDU - PMS';
             <?php echo $pageStyles; ?>
         </style>
     <?php endif; ?>
+
+    <!-- Global responsive table styles -->
+    <style>
+        /* Custom responsive table styles */
+        @media (max-width: 767.98px) {
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Optional: Add horizontal indicator for scrollable tables */
+            .table-responsive:not(.no-scroll-indicator)::after {
+                content: '← Scroll →';
+                display: block;
+                text-align: center;
+                font-size: 0.8rem;
+                color: #6c757d;
+                padding: 0.25rem;
+                border-bottom: 1px solid #dee2e6;
+            }
+
+            /* Hide scroll indicator when table isn't scrollable */
+            .table-responsive.no-scroll:after {
+                display: none;
+            }
+
+            /* Set minimum width for table cells to prevent wrapping */
+            .table th,
+            .table td {
+                white-space: nowrap;
+            }
+        }
+    </style>
 </head>
 
 <body class="<?php echo $pageRole; ?>-layout d-flex flex-column min-vh-100" style="background-color: #f5f7fa; padding-top: 70px;">
@@ -155,9 +188,6 @@ $title = $pageTitle ?? 'PDU - PMS';
                                     </a>
                                     <a class="dropdown-item <?= $pageRole === 'admin' && $current_page === 'manage_users' ? 'active' : '' ?>" href="/pdu_pms_project/public/admin/manage_users">
                                         <i class="fas fa-users me-1"></i>Người dùng
-                                    </a>
-                                    <a class="dropdown-item <?= $pageRole === 'admin' && $current_page === 'reports' ? 'active' : '' ?>" href="/pdu_pms_project/public/admin/reports">
-                                        <i class="fas fa-chart-bar me-1"></i>Báo cáo
                                     </a>
                                 </ul>
                             </li>
@@ -342,15 +372,13 @@ $title = $pageTitle ?? 'PDU - PMS';
         </footer>
     <?php endif; ?>
 
-    <!-- jQuery -->
+    <!-- Bootstrap core JavaScript-->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Bootstrap JavaScript Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.5/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-k6d4wzSIapyDyv1kpU366/PK5hCdSbCRGRCMv+eplOQJWyd1fbcAu9OCUj5zNLiq"
         crossorigin="anonymous"></script>
 
-    <!-- DataTables JS -->
+    <!-- Core plugin JavaScript-->
     <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
 
@@ -361,12 +389,39 @@ $title = $pageTitle ?? 'PDU - PMS';
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales/vi.js"></script>
 
-    <!-- Custom JS -->
+    <!-- App scripts -->
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        $(document).ready(function() {
+            // Auto wrap tables that don't have .table-responsive parent
+            $('.table').each(function() {
+                if (!$(this).parent().hasClass('table-responsive')) {
+                    $(this).wrap('<div class="table-responsive"></div>');
+                }
+            });
+
+            // Check if tables need scrolling and add/remove no-scroll class accordingly
+            function checkTableScroll() {
+                $('.table-responsive').each(function() {
+                    var tableWidth = $(this).find('table').width();
+                    var containerWidth = $(this).width();
+
+                    if (tableWidth > containerWidth) {
+                        $(this).removeClass('no-scroll');
+                    } else {
+                        $(this).addClass('no-scroll');
+                    }
+                });
+            }
+
+            // Run on load and resize
+            checkTableScroll();
+            $(window).resize(function() {
+                checkTableScroll();
+            });
+
             // Initialize tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-            const tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl);
             });
 
@@ -387,7 +442,7 @@ $title = $pageTitle ?? 'PDU - PMS';
                 });
             }, 5000);
 
-            // Initialize DataTables if any tables with .datatable class exist
+            // Datatable initialization
             if (typeof $.fn.DataTable !== 'undefined' && $('.datatable').length > 0) {
                 $('.datatable').DataTable({
                     language: {

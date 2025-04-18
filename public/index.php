@@ -394,17 +394,7 @@ switch ($uri) {
         $data = $studentController->suggestAvailableRooms($_GET);
         require_once __DIR__ . '/../src/Views/student/suggest_rooms.php';
         break;
-    case 'admin/reports':
-        $data = $adminController->generateReports();
-        require_once __DIR__ . '/../src/Views/admin/reports/reports.php';
-        break;
-    case 'admin/export_report':
-        $adminController->exportReport($_GET);
-        break;
-    case 'admin/analytics':
-        $data = $adminController->analytics();
-        require_once __DIR__ . '/../src/Views/admin/analytics.php';
-        break;
+
     case 'admin/system_logs':
         $data = $adminController->systemLogs();
         require_once __DIR__ . '/../src/Views/admin/system_logs.php';
