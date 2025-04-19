@@ -191,9 +191,9 @@ switch ($uri) {
         require_once __DIR__ . '/../src/Views/admin/bookings/manage_bookings.php';
         break;
     case 'admin/calendar_bookings':
-        // Hiển thị lịch đặt phòng dạng calendar
+        // Hiển thị lịch đặt phòng dạng calendar cho admin
         $data = $adminController->calendarBookings();
-        require_once __DIR__ . '/../src/Views/admin/bookings/calendar_view.php';
+        require_once __DIR__ . '/../src/Views/shared/bookings/calendar_view.php';
         break;
     case 'admin/get_bookings_json':
         // API lấy dữ liệu đặt phòng dưới dạng JSON
@@ -266,6 +266,25 @@ switch ($uri) {
         $data = $teacherController->index(); // Sử dụng index vì đã có dữ liệu bookings trong đó
         require_once __DIR__ . '/../src/Views/teacher/index.php'; // Sử dụng trang index vì đã có hiển thị bookings
         break;
+    case 'teacher/calendar_bookings':
+        // Hiển thị lịch đặt phòng dạng calendar cho giáo viên
+        $data = $teacherController->calendarBookings();
+        require_once __DIR__ . '/../src/Views/shared/bookings/calendar_view.php';
+        break;
+    case 'teacher/get_bookings_json':
+        // API lấy dữ liệu đặt phòng dưới dạng JSON cho giáo viên
+        $teacherController->getBookingsJson();
+        break;
+    case 'teacher/cancel_booking':
+        // Hủy đặt phòng của giáo viên
+        if (preg_match('/^teacher\/cancel_booking\/(\d+)$/', $uri, $matches)) {
+            $_GET['id'] = $matches[1];
+            $teacherController->cancelBooking($_GET);
+        } else {
+            header('Location: /pdu_pms_project/public/teacher/calendar_bookings');
+            exit;
+        }
+        break;
     case 'teacher/my_timetables':
         // Route cho xem lịch dạy của giáo viên
         error_log("DEBUG: Đang xử lý route teacher/my_timetables");
@@ -294,6 +313,25 @@ switch ($uri) {
         // Thêm route cho xem lịch đặt phòng của sinh viên
         $data = $studentController->index(); // Sử dụng index vì đã có dữ liệu bookings trong đó
         require_once __DIR__ . '/../src/Views/student/my_bookings.php';
+        break;
+    case 'student/calendar_bookings':
+        // Hiển thị lịch đặt phòng dạng calendar cho sinh viên
+        $data = $studentController->calendarBookings();
+        require_once __DIR__ . '/../src/Views/shared/bookings/calendar_view.php';
+        break;
+    case 'student/get_bookings_json':
+        // API lấy dữ liệu đặt phòng dưới dạng JSON cho sinh viên
+        $studentController->getBookingsJson();
+        break;
+    case 'student/cancel_booking':
+        // Hủy đặt phòng của sinh viên
+        if (preg_match('/^student\/cancel_booking\/(\d+)$/', $uri, $matches)) {
+            $_GET['id'] = $matches[1];
+            $studentController->cancelBooking($_GET);
+        } else {
+            header('Location: /pdu_pms_project/public/student/calendar_bookings');
+            exit;
+        }
         break;
 
     case 'admin/search_rooms':
@@ -360,6 +398,9 @@ switch ($uri) {
     case 'maintenance/create':
         $data = $maintenanceController->createRequest(array_merge($_GET, $_POST));
         require_once __DIR__ . '/../src/Views/maintenance/create.php';
+        break;
+    case 'maintenance/delete':
+        $maintenanceController->userDeleteRequest($_GET);
         break;
     case 'teacher/search_rooms':
         $data = $teacherController->searchRooms($_GET);
@@ -468,6 +509,22 @@ switch ($uri) {
             $_GET['id'] = $matches[1];
             // Sử dụng đối tượng AdminController đã được khởi tạo
             $adminController->deleteBooking($_GET);
+            break;
+        } elseif (preg_match('/^admin\/approve_booking\/(\d+)$/', $uri, $matches)) {
+            $_GET['id'] = $matches[1];
+            $adminController->approveBooking($_GET);
+            break;
+        } elseif (preg_match('/^admin\/reject_booking\/(\d+)$/', $uri, $matches)) {
+            $_GET['id'] = $matches[1];
+            $adminController->rejectBooking($_GET);
+            break;
+        } elseif (preg_match('/^teacher\/cancel_booking\/(\d+)$/', $uri, $matches)) {
+            $_GET['id'] = $matches[1];
+            $teacherController->cancelBooking($_GET);
+            break;
+        } elseif (preg_match('/^student\/cancel_booking\/(\d+)$/', $uri, $matches)) {
+            $_GET['id'] = $matches[1];
+            $studentController->cancelBooking($_GET);
             break;
         } elseif (preg_match('/^admin\/view_booking\/(\d+)$/', $uri, $matches)) {
             $_GET['id'] = $matches[1];

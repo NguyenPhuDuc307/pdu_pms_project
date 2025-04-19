@@ -114,6 +114,19 @@ ob_start();
     <div class="card shadow mb-4 rounded">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold text-primary">Đặt phòng gần đây</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="/pdu_pms_project/public/teacher/calendar_bookings" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-calendar-alt me-1"></i> Xem dạng lịch
+                </a>
+
+                <a href="/pdu_pms_project/public/teacher/book_room" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle me-1"></i> Đặt phòng mới
+                </a>
+
+                <a href="/pdu_pms_project/public/maintenance" class="btn btn-sm btn-outline-warning">
+                    <i class="fas fa-tools me-1"></i> Yêu cầu sửa chữa
+                </a>
+            </div>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -197,6 +210,8 @@ ob_start();
         // Thêm class Bootstrap vào các phần tử
         $('.dataTables_length select').addClass('form-select form-select-sm');
         $('.dataTables_filter input').addClass('form-control form-control-sm');
+
+        // Không còn các nút lọc nhanh
     });
 </script>
 

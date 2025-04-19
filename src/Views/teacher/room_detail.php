@@ -98,6 +98,9 @@ ob_start();
                                 <a href="/pdu_pms_project/public/teacher/book_room?room_id=<?= $room['id'] ?>" class="btn btn-primary py-3">
                                     <i class="fas fa-calendar-plus me-2"></i>Đặt phòng này
                                 </a>
+                                <a href="/pdu_pms_project/public/maintenance/create?room_id=<?= $room['id'] ?>" class="btn btn-outline-warning py-3">
+                                    <i class="fas fa-tools me-2"></i>Yêu cầu sửa chữa
+                                </a>
                             </div>
                         </div>
                     </div>

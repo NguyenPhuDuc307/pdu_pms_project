@@ -45,8 +45,20 @@ ob_start();
         </div>
     <?php endif; ?>
 
+    <!-- Nút tác vụ nhanh -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex flex-wrap gap-2">
+            <a href="/pdu_pms_project/public/teacher/calendar_bookings" class="btn btn-primary">
+                <i class="fas fa-calendar-alt me-1"></i> Xem dạng lịch
+            </a>
+        </div>
+        <button class="btn btn-outline-secondary" id="filterToggle">
+            <i class="fas fa-filter me-1"></i> Bộ lọc
+        </button>
+    </div>
+
     <!-- Bộ lọc -->
-    <div class="card shadow-sm mb-4">
+    <div class="card shadow-sm mb-4" id="filterContainer" style="display: none;">
         <div class="card-body">
             <form method="GET" action="/pdu_pms_project/public/teacher/my_timetables" class="row g-3">
                 <div class="col-md-4">
@@ -149,6 +161,26 @@ ob_start();
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý hiển thị/ẩn bộ lọc nâng cao
+        const filterToggle = document.getElementById('filterToggle');
+        const filterContainer = document.getElementById('filterContainer');
+
+        filterToggle.addEventListener('click', function() {
+            if (filterContainer.style.display === 'none') {
+                filterContainer.style.display = 'block';
+                filterToggle.innerHTML = '<i class="fas fa-times me-1"></i> Đóng bộ lọc';
+            } else {
+                filterContainer.style.display = 'none';
+                filterToggle.innerHTML = '<i class="fas fa-filter me-1"></i> Bộ lọc';
+            }
+        });
+
+        // Không cần khởi tạo DataTable ở đây vì đã được khởi tạo trong main_layout.php
+    });
+</script>
 
 <?php
 // Get the buffered content

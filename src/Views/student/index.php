@@ -23,8 +23,14 @@ ob_start();
     <?php include __DIR__ . '/../components/page_header.php'; ?>
 
     <div class="text-end mb-3">
-        <a href="/pdu_pms_project/public/student/book_room" class="btn btn-primary shadow-sm">
-            <i class="fas fa-calendar-plus me-2"></i>Đặt Phòng Mới
+        <a href="/pdu_pms_project/public/student/calendar_bookings" class="btn btn-outline-primary shadow-sm me-2">
+            <i class="fas fa-calendar-alt me-2"></i>Xem dạng lịch
+        </a>
+        <a href="/pdu_pms_project/public/student/book_room" class="btn btn-primary shadow-sm me-2">
+            <i class="fas fa-calendar-plus me-2"></i>Đặt phòng mới
+        </a>
+        <a href="/pdu_pms_project/public/maintenance" class="btn btn-outline-warning shadow-sm">
+            <i class="fas fa-tools me-2"></i>Yêu cầu sửa chữa
         </a>
     </div>
 

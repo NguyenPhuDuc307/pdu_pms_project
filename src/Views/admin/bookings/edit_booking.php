@@ -107,8 +107,7 @@ ob_start();
                         <select name="status" id="status" class="form-select" required>
                             <option value="chờ duyệt" <?php echo (isset($_POST['status']) ? ($_POST['status'] === 'chờ duyệt') : ($data['booking']['status'] === 'chờ duyệt')) ? 'selected' : ''; ?>>Chờ duyệt</option>
                             <option value="được duyệt" <?php echo (isset($_POST['status']) ? ($_POST['status'] === 'được duyệt') : ($data['booking']['status'] === 'được duyệt')) ? 'selected' : ''; ?>>Được duyệt</option>
-                            <option value="từ chối" <?php echo (isset($_POST['status']) ? ($_POST['status'] === 'từ chối') : ($data['booking']['status'] === 'từ chối')) ? 'selected' : ''; ?>>Từ chối</option>
-                            <option value="đã hủy" <?php echo (isset($_POST['status']) ? ($_POST['status'] === 'đã hủy') : ($data['booking']['status'] === 'đã hủy')) ? 'selected' : ''; ?>>Đã hủy</option>
+                            <option value="bị hủy" <?php echo (isset($_POST['status']) ? ($_POST['status'] === 'bị hủy') : ($data['booking']['status'] === 'bị hủy')) ? 'selected' : ''; ?>>Bị hủy</option>
                         </select>
                     </div>
                 </div>

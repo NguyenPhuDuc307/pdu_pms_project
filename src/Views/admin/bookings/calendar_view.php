@@ -115,10 +115,6 @@ ob_start();
                         <span id="modal-class"></span>
                     </div>
                     <div class="mb-3">
-                        <label class="fw-bold">Lý do:</label>
-                        <span id="modal-purpose"></span>
-                    </div>
-                    <div class="mb-3">
                         <label class="fw-bold">Trạng thái:</label>
                         <span id="modal-status"></span>
                     </div>
@@ -126,12 +122,6 @@ ob_start();
                 <div class="modal-footer">
                     <a href="#" id="modal-edit-link" class="btn btn-warning">
                         <i class="fas fa-edit me-1"></i> Chỉnh sửa
-                    </a>
-                    <a href="#" id="modal-approve-link" class="btn btn-success">
-                        <i class="fas fa-check-circle me-1"></i> Duyệt
-                    </a>
-                    <a href="#" id="modal-reject-link" class="btn btn-danger">
-                        <i class="fas fa-times-circle me-1"></i> Từ chối
                     </a>
                     <a href="#" id="modal-delete-link" class="btn btn-danger">
                         <i class="fas fa-trash me-1"></i> Xóa
@@ -147,7 +137,8 @@ ob_start();
 // Thêm CSS cho FullCalendar
 $pageStyles = <<<EOT
 #calendar {
-    height: 900px;
+    height: 100%;
+    width: 100%;
 }
 .fc-event {
     cursor: pointer;
@@ -235,7 +226,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         const userName = booking.user_name || 'Không xác định';
                         const roomName = booking.room_name || 'Không xác định';
                         const classCode = booking.class_code || 'Không có';
-                        const purpose = booking.purpose || '';
 
                         return {
                             id: booking.id,
@@ -247,7 +237,6 @@ document.addEventListener('DOMContentLoaded', function() {
                                 user_name: userName,
                                 user_role: booking.user_role || 'Không xác định',
                                 class_code: classCode,
-                                purpose: purpose,
                                 status: booking.status || 'Không xác định',
                                 room_id: booking.room_id,
                                 user_id: booking.user_id
@@ -295,7 +284,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('modal-start').textContent = booking.start ? new Date(booking.start).toLocaleString('vi-VN') : 'Không xác định';
             document.getElementById('modal-end').textContent = booking.end ? new Date(booking.end).toLocaleString('vi-VN') : 'Không xác định';
             document.getElementById('modal-class').textContent = props.class_code || 'Không có';
-            document.getElementById('modal-purpose').textContent = props.purpose || 'Không có';
 
             // Hiển thị trạng thái
             var statusText = 'Không xác định';
@@ -332,18 +320,6 @@ document.addEventListener('DOMContentLoaded', function() {
             if (booking.id) {
                 document.getElementById('modal-edit-link').href = '/pdu_pms_project/public/admin/edit_booking/' + booking.id;
                 document.getElementById('modal-delete-link').setAttribute('data-id', booking.id);
-                document.getElementById('modal-approve-link').setAttribute('data-id', booking.id);
-                document.getElementById('modal-reject-link').setAttribute('data-id', booking.id);
-                
-                // Hiển thị hoặc ẩn nút duyệt và từ chối dựa trên trạng thái
-                if (props.status === 'chờ duyệt') {
-                    document.getElementById('modal-approve-link').style.display = 'inline-block';
-                    document.getElementById('modal-reject-link').style.display = 'inline-block';
-                } else {
-                    document.getElementById('modal-approve-link').style.display = 'none';
-                    document.getElementById('modal-reject-link').style.display = 'none';
-                }
-                
                 // Hiển thị các nút thao tác
                 document.getElementById('modal-edit-link').style.display = 'inline-block';
                 document.getElementById('modal-delete-link').style.display = 'inline-block';
@@ -351,8 +327,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Ẩn các nút thao tác nếu không có ID
                 document.getElementById('modal-edit-link').style.display = 'none';
                 document.getElementById('modal-delete-link').style.display = 'none';
-                document.getElementById('modal-approve-link').style.display = 'none';
-                document.getElementById('modal-reject-link').style.display = 'none';
             }
 
             // Hiển thị modal
@@ -389,26 +363,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (confirm('Bạn có chắc chắn muốn xóa đặt phòng này?')) {
             var bookingId = this.getAttribute('data-id');
             window.location.href = '/pdu_pms_project/public/admin/delete_booking/' + bookingId;
-        }
-    });
-
-    // Xử lý duyệt đặt phòng
-    document.getElementById('modal-approve-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        if (confirm('Bạn có chắc chắn muốn duyệt đặt phòng này?')) {
-            var bookingId = this.getAttribute('data-id');
-            window.location.href = '/pdu_pms_project/public/admin/approve_booking/' + bookingId;
-        }
-    });
-    
-    // Xử lý từ chối đặt phòng
-    document.getElementById('modal-reject-link').addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        if (confirm('Bạn có chắc chắn muốn từ chối đặt phòng này?')) {
-            var bookingId = this.getAttribute('data-id');
-            window.location.href = '/pdu_pms_project/public/admin/reject_booking/' + bookingId;
         }
     });
 });

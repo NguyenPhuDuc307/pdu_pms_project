@@ -306,6 +306,101 @@ class StudentController
         ];
     }
 
+    // Phương thức xem lịch đặt phòng dạng lịch
+    public function calendarBookings()
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        return [
+            'rooms' => $this->roomModel->getAllRooms()
+        ];
+    }
+
+    // API lấy dữ liệu đặt phòng dưới dạng JSON cho FullCalendar
+    public function getBookingsJson()
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+            header('Content-Type: application/json');
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+
+        // Lấy các tham số lọc từ query string
+        $start = $_GET['start'] ?? null;
+        $end = $_GET['end'] ?? null;
+        $room_id = $_GET['room_id'] ?? null;
+        $status = $_GET['status'] ?? null;
+        $student_id = $_SESSION['user_id']; // Chỉ lấy đặt phòng của sinh viên hiện tại
+
+        // Lấy tất cả đặt phòng của sinh viên
+        $bookings = $this->bookingModel->getBookingsByStudent($student_id);
+
+        // Lọc theo các tiêu chí
+        if ($start && $end) {
+            $bookings = array_filter($bookings, function ($booking) use ($start, $end) {
+                return $booking['start_time'] >= $start && $booking['end_time'] <= $end;
+            });
+        }
+
+        if ($room_id) {
+            $bookings = array_filter($bookings, function ($booking) use ($room_id) {
+                return $booking['room_id'] == $room_id;
+            });
+        }
+
+        if ($status) {
+            $bookings = array_filter($bookings, function ($booking) use ($status) {
+                return $booking['status'] == $status;
+            });
+        }
+
+        // Trả về dữ liệu dưới dạng JSON
+        header('Content-Type: application/json');
+        echo json_encode(array_values($bookings));
+        exit;
+    }
+
+    // Phương thức hủy đặt phòng
+    public function cancelBooking($params = [])
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $id = $params['id'] ?? 0;
+        $student_id = $_SESSION['user_id'];
+
+        if (!$id) {
+            AlertHelper::error(AlertHelper::INVALID_INPUT);
+            header('Location: /pdu_pms_project/public/student/calendar_bookings');
+            exit;
+        }
+
+        // Kiểm tra xem đặt phòng có thuộc về sinh viên này không
+        $booking = $this->bookingModel->getBookingById($id);
+        if (!$booking || $booking['user_id'] != $student_id) {
+            AlertHelper::error("Bạn không có quyền hủy đặt phòng này");
+            header('Location: /pdu_pms_project/public/student/calendar_bookings');
+            exit;
+        }
+
+        // Cập nhật trạng thái đặt phòng thành "đã hủy"
+        $success = $this->bookingModel->updateBookingStatus($id, 'cancelled');
+
+        if ($success) {
+            AlertHelper::success("Hủy đặt phòng thành công");
+        } else {
+            AlertHelper::error("Không thể hủy đặt phòng. Vui lòng thử lại sau");
+        }
+
+        header('Location: /pdu_pms_project/public/student/calendar_bookings');
+        exit;
+    }
+
     // Phương thức đề xuất phòng trống theo thời gian và loại
     public function suggestAvailableRooms($params = [])
     {

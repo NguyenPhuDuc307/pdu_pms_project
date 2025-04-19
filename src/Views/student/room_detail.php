@@ -108,24 +108,27 @@ require_once __DIR__ . '/../layouts/header.php';
                                         </td>
                                     </tr>
                                     <?php if (!empty($data['room']['notes'])): ?>
-                                    <tr>
-                                        <th>Ghi chú:</th>
-                                        <td><?php echo nl2br(htmlspecialchars($data['room']['notes'])); ?></td>
-                                    </tr>
+                                        <tr>
+                                            <th>Ghi chú:</th>
+                                            <td><?php echo nl2br(htmlspecialchars($data['room']['notes'])); ?></td>
+                                        </tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <?php if ($data['room']['status'] === 'trống'): ?>
                     <div class="card-footer bg-white">
-                        <div class="d-grid">
-                            <a href="/pdu_pms_project/public/student/book_room/<?php echo $data['room']['id']; ?>" class="btn btn-primary">
-                                <i class="fas fa-calendar-plus me-2"></i>Đặt phòng này
+                        <div class="d-grid gap-2">
+                            <?php if ($data['room']['status'] === 'trống'): ?>
+                                <a href="/pdu_pms_project/public/student/book_room/<?php echo $data['room']['id']; ?>" class="btn btn-primary">
+                                    <i class="fas fa-calendar-plus me-2"></i>Đặt phòng này
+                                </a>
+                            <?php endif; ?>
+                            <a href="/pdu_pms_project/public/maintenance/create?room_id=<?php echo $data['room']['id']; ?>" class="btn btn-outline-warning">
+                                <i class="fas fa-tools me-2"></i>Yêu cầu sửa chữa
                             </a>
                         </div>
                     </div>
-                    <?php endif; ?>
                 </div>
 
                 <!-- Danh sách thiết bị trong phòng -->
@@ -220,7 +223,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                             <?php echo $class['teacher_name'] ? htmlspecialchars($class['teacher_name']) : ($class['student_name'] ? htmlspecialchars($class['student_name']) : 'N/A'); ?>
                                         </p>
                                         <p class="text-muted small mb-0">
-                                            <?php echo date('H:i', strtotime($class['start_time'])); ?> - 
+                                            <?php echo date('H:i', strtotime($class['start_time'])); ?> -
                                             <?php echo date('H:i', strtotime($class['end_time'])); ?>
                                         </p>
                                     </div>
@@ -248,7 +251,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                             <div>
                                                 <p class="mb-0 fw-semibold"><?php echo date('d/m/Y', strtotime($slot['date'])); ?></p>
                                                 <p class="mb-0 text-muted small">
-                                                    <?php echo date('H:i', strtotime($slot['start_time'])); ?> - 
+                                                    <?php echo date('H:i', strtotime($slot['start_time'])); ?> -
                                                     <?php echo date('H:i', strtotime($slot['end_time'])); ?>
                                                 </p>
                                             </div>
@@ -271,7 +274,7 @@ require_once __DIR__ . '/../layouts/header.php';
                     <div class="card-body">
                         <form action="/pdu_pms_project/public/student/report_issue" method="post">
                             <input type="hidden" name="room_id" value="<?php echo $data['room']['id']; ?>">
-                            
+
                             <div class="mb-3">
                                 <label for="issue_type" class="form-label">Loại vấn đề</label>
                                 <select class="form-select" id="issue_type" name="issue_type" required>
@@ -281,7 +284,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                     <option value="khác">Vấn đề khác</option>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="equipment_id" class="form-label">Thiết bị gặp vấn đề</label>
                                 <select class="form-select" id="equipment_id" name="equipment_id">
@@ -295,12 +298,12 @@ require_once __DIR__ . '/../layouts/header.php';
                                     <?php endif; ?>
                                 </select>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="description" class="form-label">Mô tả vấn đề</label>
                                 <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
                             </div>
-                            
+
                             <div class="mb-3">
                                 <label for="priority" class="form-label">Mức độ ưu tiên</label>
                                 <select class="form-select" id="priority" name="priority" required>
@@ -310,7 +313,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                     <option value="khẩn cấp">Khẩn cấp</option>
                                 </select>
                             </div>
-                            
+
                             <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="fas fa-paper-plane me-2"></i>Gửi báo cáo
@@ -334,7 +337,7 @@ require_once __DIR__ . '/../layouts/header.php';
         const issueTypeSelect = document.getElementById('issue_type');
         const equipmentSelect = document.getElementById('equipment_id');
         const equipmentContainer = equipmentSelect.closest('.mb-3');
-        
+
         issueTypeSelect.addEventListener('change', function() {
             if (this.value === 'thiết bị') {
                 equipmentContainer.style.display = 'block';
@@ -347,4 +350,4 @@ require_once __DIR__ . '/../layouts/header.php';
     });
 </script>
 
-<?php require_once __DIR__ . '/../layouts/footer.php'; ?> 
+<?php require_once __DIR__ . '/../layouts/footer.php'; ?>

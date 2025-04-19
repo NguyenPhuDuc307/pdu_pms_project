@@ -135,7 +135,7 @@ class MaintenanceController
         exit;
     }
 
-    // Xóa yêu cầu bảo trì
+    // Xóa yêu cầu bảo trì (cho admin)
     public function deleteRequest($data)
     {
         if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
@@ -158,6 +158,49 @@ class MaintenanceController
             AlertHelper::error(AlertHelper::ACTION_FAILED);
             header('Location: /pdu_pms_project/public/admin/maintenance_requests');
         }
+        exit;
+    }
+
+    // Xóa yêu cầu bảo trì (cho giáo viên và sinh viên)
+    public function userDeleteRequest($data)
+    {
+        if (!isset($_SESSION['user_id'])) {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $userId = $_SESSION['user_id'];
+        $id = $data['id'] ?? null;
+
+        if (!$id) {
+            AlertHelper::error(AlertHelper::INVALID_INPUT);
+            header('Location: /pdu_pms_project/public/maintenance');
+            exit;
+        }
+
+        // Kiểm tra xem yêu cầu có thuộc về người dùng hiện tại không
+        $request = $this->maintenanceRequestModel->getRequestById($id);
+        if (!$request || $request['user_id'] != $userId) {
+            AlertHelper::error(AlertHelper::PERMISSION_DENIED);
+            header('Location: /pdu_pms_project/public/maintenance');
+            exit;
+        }
+
+        // Chỉ cho phép xóa các yêu cầu đang chờ hoặc bị từ chối
+        if ($request['status'] != 'đang chờ' && $request['status'] != 'từ chối') {
+            AlertHelper::error('Chỉ có thể xóa yêu cầu đang chờ hoặc đã bị từ chối');
+            header('Location: /pdu_pms_project/public/maintenance');
+            exit;
+        }
+
+        $success = $this->maintenanceRequestModel->deleteRequest($id);
+        if ($success) {
+            AlertHelper::success(AlertHelper::ACTION_COMPLETED);
+        } else {
+            AlertHelper::error(AlertHelper::ACTION_FAILED);
+        }
+
+        header('Location: /pdu_pms_project/public/maintenance');
         exit;
     }
 

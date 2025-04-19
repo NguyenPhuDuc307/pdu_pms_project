@@ -22,13 +22,26 @@ ob_start();
     <!-- Page Header -->
     <?php include __DIR__ . '/../components/page_header.php'; ?>
 
-    <div class="d-flex justify-content-end mb-3">
-        <a href="/pdu_pms_project/public/student/book_room" class="btn btn-primary me-2">
-            <i class="fas fa-plus-circle me-1"></i> Đặt phòng mới
-        </a>
-        <button class="btn btn-outline-primary" id="filterToggle">
-            <i class="fas fa-filter me-1"></i> Bộ lọc
-        </button>
+    <div class="d-flex justify-content-between mb-3">
+        <div class="d-flex flex-wrap gap-2">
+            <div class="btn-group" role="group">
+                <a href="/pdu_pms_project/public/student/my_bookings" class="btn btn-primary active">
+                    <i class="fas fa-table me-1"></i> Dạng bảng
+                </a>
+                <a href="/pdu_pms_project/public/student/calendar_bookings" class="btn btn-outline-primary">
+                    <i class="fas fa-calendar-alt me-1"></i> Dạng lịch
+                </a>
+            </div>
+
+        </div>
+        <div>
+            <a href="/pdu_pms_project/public/student/book_room" class="btn btn-primary me-2">
+                <i class="fas fa-plus-circle me-1"></i> Đặt phòng mới
+            </a>
+            <button class="btn btn-outline-primary" id="filterToggle">
+                <i class="fas fa-filter me-1"></i> Bộ lọc
+            </button>
+        </div>
     </div>
 
     <?php if (isset($_SESSION['error'])): ?>
@@ -95,44 +108,7 @@ ob_start();
         </div>
     </div>
 
-    <!-- Tab điều hướng -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <ul class="nav nav-tabs">
-                <li class="nav-item">
-                    <a class="nav-link <?php echo !isset($_GET['tab']) || $_GET['tab'] === 'upcoming' ? 'active' : ''; ?>" href="/pdu_pms_project/public/student/my_bookings?tab=upcoming">
-                        Sắp tới
-                        <?php if (isset($data['upcoming_count']) && $data['upcoming_count'] > 0): ?>
-                            <span class="badge bg-primary rounded-pill ms-1"><?php echo $data['upcoming_count']; ?></span>
-                        <?php endif; ?>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo isset($_GET['tab']) && $_GET['tab'] === 'pending' ? 'active' : ''; ?>" href="/pdu_pms_project/public/student/my_bookings?tab=pending">
-                        Chờ duyệt
-                        <?php if (isset($data['pending_count']) && $data['pending_count'] > 0): ?>
-                            <span class="badge bg-warning rounded-pill ms-1"><?php echo $data['pending_count']; ?></span>
-                        <?php endif; ?>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo isset($_GET['tab']) && $_GET['tab'] === 'past' ? 'active' : ''; ?>" href="/pdu_pms_project/public/student/my_bookings?tab=past">
-                        Đã qua
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo isset($_GET['tab']) && $_GET['tab'] === 'cancelled' ? 'active' : ''; ?>" href="/pdu_pms_project/public/student/my_bookings?tab=cancelled">
-                        Đã hủy
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link <?php echo isset($_GET['tab']) && $_GET['tab'] === 'all' ? 'active' : ''; ?>" href="/pdu_pms_project/public/student/my_bookings?tab=all">
-                        Tất cả
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
+
 
     <!-- Danh sách lịch đặt phòng -->
     <div class="row">
@@ -177,7 +153,7 @@ ob_start();
                                                     </div>
                                                     <div>
                                                         <div class="fw-bold"><?php echo htmlspecialchars($booking['room_name']); ?></div>
-                                                        <div class="small text-muted"><?php echo htmlspecialchars($booking['room_type_name']); ?></div>
+                                                        <div class="small text-muted"><?php echo htmlspecialchars($booking['room_type_name'] ?? ''); ?></div>
                                                     </div>
                                                 </div>
                                             </td>
@@ -354,6 +330,8 @@ ob_start();
                 });
             });
         }
+
+        // Không còn các nút lọc nhanh
     });
 </script>
 

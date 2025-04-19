@@ -666,6 +666,64 @@ class AdminController
         ];
     }
 
+    // Phương thức duyệt đặt phòng
+    public function approveBooking($params = [])
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $id = $params['id'] ?? 0;
+
+        if (!$id) {
+            AlertHelper::error(AlertHelper::INVALID_INPUT);
+            header('Location: /pdu_pms_project/public/admin/calendar_bookings');
+            exit;
+        }
+
+        // Cập nhật trạng thái đặt phòng thành "được duyệt"
+        $success = $this->bookingModel->updateBookingStatus($id, 'approved');
+
+        if ($success) {
+            AlertHelper::success("Duyệt đặt phòng thành công");
+        } else {
+            AlertHelper::error("Không thể duyệt đặt phòng. Vui lòng thử lại sau");
+        }
+
+        header('Location: /pdu_pms_project/public/admin/calendar_bookings');
+        exit;
+    }
+
+    // Phương thức từ chối đặt phòng
+    public function rejectBooking($params = [])
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $id = $params['id'] ?? 0;
+
+        if (!$id) {
+            AlertHelper::error(AlertHelper::INVALID_INPUT);
+            header('Location: /pdu_pms_project/public/admin/calendar_bookings');
+            exit;
+        }
+
+        // Cập nhật trạng thái đặt phòng thành "từ chối"
+        $success = $this->bookingModel->updateBookingStatus($id, 'rejected');
+
+        if ($success) {
+            AlertHelper::success("Từ chối đặt phòng thành công");
+        } else {
+            AlertHelper::error("Không thể từ chối đặt phòng. Vui lòng thử lại sau");
+        }
+
+        header('Location: /pdu_pms_project/public/admin/calendar_bookings');
+        exit;
+    }
+
     // API lấy dữ liệu đặt phòng dưới dạng JSON cho FullCalendar
     public function getBookingsJson()
     {
