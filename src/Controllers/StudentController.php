@@ -68,19 +68,23 @@ class StudentController
             switch (strtolower($booking['status'])) {
                 case 'được duyệt':
                 case 'đã duyệt':
+                case 'approved':
                     $approvedBookings++;
                     break;
                 case 'chờ duyệt':
+                case 'pending':
                     $pendingBookings++;
                     break;
                 case 'từ chối':
+                case 'rejected':
                     $rejectedBookings++;
                     break;
             }
 
             // Tìm các đặt phòng sắp tới (trạng thái đã duyệt và thời gian bắt đầu > hiện tại)
             $startTime = new DateTime($booking['start_time']);
-            if (($booking['status'] == 'được duyệt' || $booking['status'] == 'đã duyệt') && $startTime > $now) {
+            $status = strtolower($booking['status']);
+            if (($status == 'được duyệt' || $status == 'đã duyệt' || $status == 'approved' || $status == 'chờ duyệt' || $status == 'pending') && $startTime > $now) {
                 $upcomingBookings[] = $booking;
             }
         }
@@ -399,6 +403,40 @@ class StudentController
 
         header('Location: /pdu_pms_project/public/student/calendar_bookings');
         exit;
+    }
+
+    // Phương thức xem chi tiết đặt phòng
+    public function bookingDetail($params = [])
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $id = $params['id'] ?? 0;
+        $student_id = $_SESSION['user_id'];
+
+        if (!$id) {
+            AlertHelper::error(AlertHelper::INVALID_INPUT);
+            header('Location: /pdu_pms_project/public/student/my_bookings');
+            exit;
+        }
+
+        // Kiểm tra xem đặt phòng có thuộc về sinh viên này không
+        $booking = $this->bookingModel->getBookingById($id);
+        if (!$booking || $booking['user_id'] != $student_id) {
+            AlertHelper::error("Bạn không có quyền xem chi tiết đặt phòng này");
+            header('Location: /pdu_pms_project/public/student/my_bookings');
+            exit;
+        }
+
+        // Lấy thông tin phòng
+        $room = $this->roomModel->getDetailedRoom($booking['room_id']);
+
+        return [
+            'booking' => $booking,
+            'room' => $room
+        ];
     }
 
     // Phương thức đề xuất phòng trống theo thời gian và loại

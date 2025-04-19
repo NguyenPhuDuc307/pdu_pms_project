@@ -492,6 +492,81 @@ class TeacherController
         ];
     }
 
+    // Phương thức xem chi tiết đặt phòng
+    public function bookingDetail($params = [])
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $id = $params['id'] ?? 0;
+        $teacher_id = $_SESSION['user_id'];
+
+        if (!$id) {
+            AlertHelper::error(AlertHelper::INVALID_INPUT);
+            header('Location: /pdu_pms_project/public/teacher/calendar_bookings');
+            exit;
+        }
+
+        // Kiểm tra xem đặt phòng có thuộc về giáo viên này không
+        $booking = $this->bookingModel->getBookingById($id);
+        if (!$booking || $booking['user_id'] != $teacher_id) {
+            AlertHelper::error("Bạn không có quyền xem chi tiết đặt phòng này");
+            header('Location: /pdu_pms_project/public/teacher/calendar_bookings');
+            exit;
+        }
+
+        // Lấy thông tin phòng
+        $room = $this->roomModel->getDetailedRoom($booking['room_id']);
+
+        // Lấy lịch sử hoạt động của đặt phòng
+        $booking_activities = $this->bookingModel->getBookingActivities($id);
+
+        return [
+            'booking' => $booking,
+            'room' => $room,
+            'booking_activities' => $booking_activities
+        ];
+    }
+
+    // Phương thức xem chi tiết lịch dạy
+    public function timetableDetail($params = [])
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $id = $params['id'] ?? 0;
+        $teacher_id = $_SESSION['user_id'];
+
+        if (!$id) {
+            AlertHelper::error(AlertHelper::INVALID_INPUT);
+            header('Location: /pdu_pms_project/public/teacher/my_timetables');
+            exit;
+        }
+
+        // Kiểm tra xem lịch dạy có thuộc về giáo viên này không
+        $timetable = $this->timetableModel->getTimetableById($id);
+        if (!$timetable || $timetable['teacher_id'] != $teacher_id) {
+            AlertHelper::error("Bạn không có quyền xem chi tiết lịch dạy này");
+            header('Location: /pdu_pms_project/public/teacher/my_timetables');
+            exit;
+        }
+
+        // Lấy thông tin phòng nếu có
+        $room = null;
+        if (!empty($timetable['room_id'])) {
+            $room = $this->roomModel->getDetailedRoom($timetable['room_id']);
+        }
+
+        return [
+            'timetable' => $timetable,
+            'room' => $room
+        ];
+    }
+
     // Phương thức xem lịch đặt phòng dạng lịch
     public function calendarBookings()
     {

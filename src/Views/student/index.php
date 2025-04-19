@@ -113,18 +113,23 @@ ob_start();
                                             $statusText = '';
                                             switch (strtolower($booking['status'])) {
                                                 case 'pending':
+                                                case 'chờ duyệt':
                                                     $statusClass = 'text-warning';
                                                     $statusText = 'Chờ duyệt';
                                                     break;
                                                 case 'approved':
+                                                case 'được duyệt':
+                                                case 'đã duyệt':
                                                     $statusClass = 'text-success';
                                                     $statusText = 'Đã duyệt';
                                                     break;
                                                 case 'rejected':
+                                                case 'từ chối':
                                                     $statusClass = 'text-danger';
                                                     $statusText = 'Từ chối';
                                                     break;
                                                 case 'cancelled':
+                                                case 'đã hủy':
                                                     $statusClass = 'text-secondary';
                                                     $statusText = 'Đã hủy';
                                                     break;
@@ -213,18 +218,23 @@ ob_start();
                                         $statusClass = '';
                                         $statusText = '';
                                         switch (strtolower($booking['status'])) {
+                                            case 'chờ duyệt':
                                             case 'pending':
                                                 $statusClass = 'bg-warning';
                                                 $statusText = 'Chờ duyệt';
                                                 break;
+                                            case 'được duyệt':
+                                            case 'đã duyệt':
                                             case 'approved':
                                                 $statusClass = 'bg-success';
                                                 $statusText = 'Đã duyệt';
                                                 break;
+                                            case 'từ chối':
                                             case 'rejected':
                                                 $statusClass = 'bg-danger';
                                                 $statusText = 'Từ chối';
                                                 break;
+                                            case 'đã hủy':
                                             case 'cancelled':
                                                 $statusClass = 'bg-secondary';
                                                 $statusText = 'Đã hủy';

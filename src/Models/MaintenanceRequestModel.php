@@ -18,8 +18,8 @@ class MaintenanceRequestModel
     public function getAllRequests()
     {
         $stmt = $this->db->prepare("
-            SELECT mr.*, 
-                   r.name as room_name, 
+            SELECT mr.*,
+                   r.name as room_name,
                    e.name as equipment_name,
                    u.username as user_name,
                    u.role as user_role
@@ -27,8 +27,8 @@ class MaintenanceRequestModel
             JOIN rooms r ON mr.room_id = r.id
             LEFT JOIN equipments e ON mr.equipment_id = e.id
             JOIN users u ON mr.user_id = u.id
-            ORDER BY 
-                CASE mr.status 
+            ORDER BY
+                CASE mr.status
                     WHEN 'đang chờ' THEN 1
                     WHEN 'đang xử lý' THEN 2
                     WHEN 'đã xử lý' THEN 3
@@ -50,8 +50,8 @@ class MaintenanceRequestModel
     public function getRequestsByStatus($status)
     {
         $stmt = $this->db->prepare("
-            SELECT mr.*, 
-                   r.name as room_name, 
+            SELECT mr.*,
+                   r.name as room_name,
                    e.name as equipment_name,
                    u.username as user_name,
                    u.role as user_role
@@ -60,7 +60,7 @@ class MaintenanceRequestModel
             LEFT JOIN equipments e ON mr.equipment_id = e.id
             JOIN users u ON mr.user_id = u.id
             WHERE mr.status = ?
-            ORDER BY 
+            ORDER BY
                 CASE mr.priority
                     WHEN 'khẩn cấp' THEN 1
                     WHEN 'cao' THEN 2
@@ -77,8 +77,8 @@ class MaintenanceRequestModel
     public function getRequestsByUser($userId)
     {
         $stmt = $this->db->prepare("
-            SELECT mr.*, 
-                   r.name as room_name, 
+            SELECT mr.*,
+                   r.name as room_name,
                    e.name as equipment_name
             FROM maintenance_requests mr
             JOIN rooms r ON mr.room_id = r.id
@@ -94,8 +94,8 @@ class MaintenanceRequestModel
     public function getRequestsByRoom($roomId)
     {
         $stmt = $this->db->prepare("
-            SELECT mr.*, 
-                   r.name as room_name, 
+            SELECT mr.*,
+                   r.name as room_name,
                    e.name as equipment_name,
                    u.username as user_name,
                    u.role as user_role
@@ -114,8 +114,8 @@ class MaintenanceRequestModel
     public function getRequestById($id)
     {
         $stmt = $this->db->prepare("
-            SELECT mr.*, 
-                   r.name as room_name, 
+            SELECT mr.*,
+                   r.name as room_name,
                    e.name as equipment_name,
                    u.username as user_name,
                    u.role as user_role
@@ -133,8 +133,8 @@ class MaintenanceRequestModel
     public function addRequest($roomId, $equipmentId, $userId, $issueDescription, $priority = 'trung bình')
     {
         $stmt = $this->db->prepare("
-            INSERT INTO maintenance_requests 
-            (room_id, equipment_id, user_id, issue_description, priority, status, created_at) 
+            INSERT INTO maintenance_requests
+            (room_id, equipment_id, user_id, issue_description, priority, status, created_at)
             VALUES (?, ?, ?, ?, ?, 'đang chờ', NOW())
         ");
         return $stmt->execute([$roomId, $equipmentId, $userId, $issueDescription, $priority]);
@@ -144,12 +144,12 @@ class MaintenanceRequestModel
     public function updateRequestStatus($id, $status, $adminNotes = null)
     {
         $resolvedAt = ($status == 'đã xử lý') ? 'NOW()' : 'NULL';
-        
+
         $stmt = $this->db->prepare("
-            UPDATE maintenance_requests 
-            SET status = ?, 
-                resolved_at = " . $resolvedAt . ", 
-                admin_notes = ? 
+            UPDATE maintenance_requests
+            SET status = ?,
+                resolved_at = " . $resolvedAt . ",
+                admin_notes = ?
             WHERE id = ?
         ");
         return $stmt->execute([$status, $adminNotes, $id]);
@@ -161,7 +161,7 @@ class MaintenanceRequestModel
         $stmt = $this->db->prepare("DELETE FROM maintenance_requests WHERE id = ?");
         return $stmt->execute([$id]);
     }
-    
+
     // Lấy số lượng yêu cầu bảo trì đang chờ xử lý
     public function getPendingRequestsCount()
     {
@@ -170,13 +170,31 @@ class MaintenanceRequestModel
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['count'];
     }
-    
+
+    // Lấy số lượng yêu cầu bảo trì theo trạng thái
+    public function getRequestsCountByStatus($status)
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM maintenance_requests WHERE status = ?");
+        $stmt->execute([$status]);
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result['count'];
+    }
+
+    // Lấy tổng số yêu cầu bảo trì
+    public function getTotalRequestsCount()
+    {
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM maintenance_requests");
+        $stmt->execute();
+        $result = $stmt->fetch(\PDO::FETCH_ASSOC);
+        return $result['count'];
+    }
+
     // Lấy các yêu cầu bảo trì khẩn cấp
     public function getUrgentRequests()
     {
         $stmt = $this->db->prepare("
-            SELECT mr.*, 
-                   r.name as room_name, 
+            SELECT mr.*,
+                   r.name as room_name,
                    e.name as equipment_name,
                    u.username as user_name
             FROM maintenance_requests mr
@@ -189,4 +207,4 @@ class MaintenanceRequestModel
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
-} 
+}

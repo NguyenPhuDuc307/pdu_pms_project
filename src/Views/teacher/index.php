@@ -172,7 +172,12 @@ ob_start();
                                                 $statusText = 'N/A';
                                         }
                                         ?>
-                                        <span class="badge <?= $statusClass ?>"><?= $statusText ?></span>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge <?= $statusClass ?> me-2"><?= $statusText ?></span>
+                                            <a href="/pdu_pms_project/public/teacher/booking_detail/<?= $booking['id'] ?>" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>

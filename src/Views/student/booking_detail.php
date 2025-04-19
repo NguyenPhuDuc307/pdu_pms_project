@@ -1,20 +1,27 @@
 <?php
-$pageTitle = "Chi Tiết Đặt Phòng";
-require_once __DIR__ . '/../layouts/header.php';
+// Đảm bảo chỉ cho student
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+    header('Location: /pdu_pms_project/public/login');
+    exit;
+}
+
+// Thiết lập thông tin cho page_header
+$pageTitle = "Chi tiết đặt phòng";
+$pageSubtitle = "Xem thông tin chi tiết về lịch đặt phòng";
+$pageIcon = "fas fa-info-circle";
+$breadcrumbs = [
+    ['title' => 'Trang chủ', 'link' => '/pdu_pms_project/public/student'],
+    ['title' => 'Lịch đặt phòng của tôi', 'link' => '/pdu_pms_project/public/student/my_bookings'],
+    ['title' => 'Chi tiết đặt phòng', 'link' => '']
+];
+
+// Bắt đầu output buffering
+ob_start();
 ?>
 
-<div class="container-fluid py-4">
-    <div class="row">
-        <div class="col-12 mb-3">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="/pdu_pms_project/public/student/dashboard">Trang chủ</a></li>
-                    <li class="breadcrumb-item"><a href="/pdu_pms_project/public/student/my_bookings">Lịch đặt phòng của tôi</a></li>
-                    <li class="breadcrumb-item active" aria-current="page">Chi tiết đặt phòng</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+<div class="container-fluid">
+    <!-- Page Header -->
+    <?php include __DIR__ . '/../components/page_header.php'; ?>
 
     <?php if (isset($_SESSION['error'])): ?>
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -98,10 +105,12 @@ require_once __DIR__ . '/../layouts/header.php';
                                         <i class="fas fa-users me-2 text-primary"></i>
                                         Mã lớp: <strong><?php echo htmlspecialchars($data['booking']['class_code']); ?></strong>
                                     </p>
-                                    <p class="mb-0">
-                                        <i class="fas fa-user-friends me-2 text-primary"></i>
-                                        Số người tham gia: <strong><?php echo htmlspecialchars($data['booking']['participants']); ?> người</strong>
-                                    </p>
+                                    <?php if (isset($data['booking']['participants']) && !empty($data['booking']['participants']) && $data['booking']['participants'] != 'N/A'): ?>
+                                        <p class="mb-0">
+                                            <i class="fas fa-user-friends me-2 text-primary"></i>
+                                            Số người tham gia: <strong><?php echo htmlspecialchars($data['booking']['participants']); ?> người</strong>
+                                        </p>
+                                    <?php endif; ?>
                                     <p class="mb-0">
                                         <i class="fas fa-clipboard-list me-2 text-primary"></i>
                                         Mục đích: <strong><?php echo htmlspecialchars($data['booking']['purpose']); ?></strong>
@@ -116,17 +125,21 @@ require_once __DIR__ . '/../layouts/header.php';
                                     <p class="fw-bold fs-5 mb-1">
                                         <?php echo htmlspecialchars($data['booking']['room_name']); ?>
                                     </p>
-                                    <p class="mb-1">
-                                        <i class="fas fa-map-marker-alt me-2 text-danger"></i>
-                                        <?php echo htmlspecialchars($data['booking']['location']); ?>
-                                    </p>
-                                    <p class="mb-1">
-                                        <i class="fas fa-user-friends me-2 text-primary"></i>
-                                        Sức chứa: <?php echo htmlspecialchars($data['booking']['capacity']); ?> người
-                                    </p>
+                                    <?php if (isset($data['booking']['location']) && !empty($data['booking']['location']) && $data['booking']['location'] != 'N/A'): ?>
+                                        <p class="mb-1">
+                                            <i class="fas fa-map-marker-alt me-2 text-danger"></i>
+                                            <?php echo htmlspecialchars($data['booking']['location']); ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <?php if (isset($data['booking']['capacity']) && !empty($data['booking']['capacity']) && $data['booking']['capacity'] != 'N/A'): ?>
+                                        <p class="mb-1">
+                                            <i class="fas fa-user-friends me-2 text-primary"></i>
+                                            Sức chứa: <?php echo htmlspecialchars($data['booking']['capacity']); ?> người
+                                        </p>
+                                    <?php endif; ?>
                                     <p class="mb-0">
                                         <i class="fas fa-tag me-2 text-primary"></i>
-                                        Loại phòng: <?php echo htmlspecialchars($data['booking']['room_type_name']); ?>
+                                        Loại phòng: <strong>Phòng thực hành</strong>
                                     </p>
                                 </div>
 
@@ -304,18 +317,19 @@ require_once __DIR__ . '/../layouts/header.php';
                                 <i class="fas fa-user fa-lg text-white"></i>
                             </div>
                             <div>
-                                <h6 class="mb-0"><?php echo htmlspecialchars($data['booking']['student_name']); ?></h6>
-                                <p class="text-muted mb-0 small"><?php echo htmlspecialchars($data['booking']['student_email']); ?></p>
+                                <h6 class="mb-0">
+                                    <?php
+                                    $role = isset($data['booking']['user_role']) ? $data['booking']['user_role'] : 'student';
+                                    $roleName = ($role === 'teacher') ? 'Giảng viên' : 'Sinh viên';
+                                    echo $roleName . ': ' . (isset($data['booking']['user_name']) ? htmlspecialchars($data['booking']['user_name']) : '');
+                                    ?>
+                                </h6>
                             </div>
                         </div>
 
                         <div class="table-responsive">
                             <table class="table table-borderless mb-0">
                                 <tbody>
-                                    <tr>
-                                        <th style="width: 120px;">Mã sinh viên:</th>
-                                        <td><?php echo htmlspecialchars($data['booking']['student_id']); ?></td>
-                                    </tr>
                                     <tr>
                                         <th>Ngày đặt:</th>
                                         <td><?php echo date('d/m/Y H:i', strtotime($data['booking']['created_at'])); ?></td>
@@ -518,4 +532,13 @@ require_once __DIR__ . '/../layouts/header.php';
     }
 </style>
 
-<?php require_once __DIR__ . '/../layouts/footer.php'; ?>
+<?php
+// Lấy nội dung đã buffer
+$pageContent = ob_get_clean();
+
+// Set page role
+$pageRole = 'student';
+
+// Include the main layout
+include dirname(dirname(__DIR__)) . '/Views/layouts/main_layout.php';
+?>

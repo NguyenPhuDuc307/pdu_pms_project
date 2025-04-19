@@ -355,7 +355,7 @@ class BookingModel
         try {
             // Map standard status values to legacy values if needed
             $statusMapping = [
-                'approved' => 'được duyệt',
+                'approved' => 'đã duyệt',
                 'rejected' => 'từ chối',
                 'pending' => 'chờ duyệt',
                 'cancelled' => 'đã hủy'
@@ -450,7 +450,7 @@ class BookingModel
      */
     public function getPendingBookingsCount()
     {
-        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM bookings WHERE status = 'chờ duyệt'");
+        $stmt = $this->db->prepare("SELECT COUNT(*) as count FROM bookings WHERE status IN ('chờ duyệt', 'pending')");
         $stmt->execute();
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['count'] ?? 0;

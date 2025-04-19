@@ -17,6 +17,7 @@ class AdminController
     private $roomModel;
     private $timetableModel;
     private $bookingModel;
+    private $maintenanceRequestModel;
 
     public function __construct()
     {
@@ -24,6 +25,7 @@ class AdminController
         $this->roomModel = new RoomModel();
         $this->timetableModel = new TimetableModel();
         $this->bookingModel = new BookingModel();
+        $this->maintenanceRequestModel = new \Models\MaintenanceRequestModel();
     }
 
     public function index()
@@ -55,11 +57,25 @@ class AdminController
         // Số lượng đặt phòng đang chờ duyệt
         $pending_bookings = $this->bookingModel->getPendingBookingsCount();
 
+        // Số lượng yêu cầu bảo trì
+        $pending_maintenance = $this->maintenanceRequestModel->getPendingRequestsCount();
+        $total_maintenance = $this->maintenanceRequestModel->getTotalRequestsCount();
+        $urgent_maintenance = $this->maintenanceRequestModel->getRequestsCountByStatus('khẩn cấp');
+        $completed_maintenance = $this->maintenanceRequestModel->getRequestsCountByStatus('đã xử lý');
+
         $data = [
             'title' => 'Admin Dashboard',
 
             // Số yêu cầu đặt phòng chờ duyệt
             'pending_bookings' => $pending_bookings,
+
+            // Thống kê yêu cầu bảo trì
+            'maintenance_stats' => [
+                'pending' => $pending_maintenance,
+                'total' => $total_maintenance,
+                'urgent' => $urgent_maintenance,
+                'completed' => $completed_maintenance
+            ],
 
             // Thống kê tổng quan với phần trăm thay đổi
             'stats' => [

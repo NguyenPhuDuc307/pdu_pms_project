@@ -266,6 +266,19 @@ switch ($uri) {
         $data = $teacherController->index(); // Sử dụng index vì đã có dữ liệu bookings trong đó
         require_once __DIR__ . '/../src/Views/teacher/index.php'; // Sử dụng trang index vì đã có hiển thị bookings
         break;
+    case 'teacher/booking_detail':
+        // Xem chi tiết đặt phòng của giáo viên
+        $data = $teacherController->bookingDetail($_GET);
+        require_once __DIR__ . '/../src/Views/teacher/booking_detail.php';
+        break;
+
+    // Xử lý URL có ID trong đường dẫn
+    case (preg_match('/^teacher\/booking_detail\/(\d+)$/', $uri, $matches) ? true : false):
+        $_GET['id'] = $matches[1];
+        $data = $teacherController->bookingDetail($_GET);
+        require_once __DIR__ . '/../src/Views/teacher/booking_detail.php';
+        break;
+
     case 'teacher/calendar_bookings':
         // Hiển thị lịch đặt phòng dạng calendar cho giáo viên
         $data = $teacherController->calendarBookings();
@@ -323,6 +336,12 @@ switch ($uri) {
         // API lấy dữ liệu đặt phòng dưới dạng JSON cho sinh viên
         $studentController->getBookingsJson();
         break;
+    case 'student/booking_detail':
+        // Xem chi tiết đặt phòng của sinh viên
+        $data = $studentController->bookingDetail($_GET);
+        require_once __DIR__ . '/../src/Views/student/booking_detail.php';
+        break;
+
     case 'student/cancel_booking':
         // Hủy đặt phòng của sinh viên
         if (preg_match('/^student\/cancel_booking\/(\d+)$/', $uri, $matches)) {
@@ -498,9 +517,20 @@ switch ($uri) {
         require_once __DIR__ . '/../src/Helpers/AlertHelper.php';
         require_once __DIR__ . '/../src/Views/demo/alerts_demo.php';
         break;
+    case 'teacher/timetable_detail':
+        // Xem chi tiết lịch dạy của giáo viên
+        $data = $teacherController->timetableDetail($_GET);
+        require_once __DIR__ . '/../src/Views/teacher/timetable_detail.php';
+        break;
+
     default:
         // Handle paths with IDs
-        if (preg_match('/^admin\/edit_user\/(\d+)$/', $uri, $matches)) {
+        if (preg_match('/^teacher\/timetable_detail\/(\d+)$/', $uri, $matches)) {
+            $_GET['id'] = $matches[1];
+            $data = $teacherController->timetableDetail($_GET);
+            require_once __DIR__ . '/../src/Views/teacher/timetable_detail.php';
+            break;
+        } elseif (preg_match('/^admin\/edit_user\/(\d+)$/', $uri, $matches)) {
             $_GET['id'] = $matches[1];
             $data = $adminController->editUser(array_merge($_GET, $_POST));
             require_once __DIR__ . '/../src/Views/admin/users/edit_user.php';

@@ -174,9 +174,9 @@ $title = $pageTitle ?? 'PDU - PMS';
                                     <a class="dropdown-item <?= $pageRole === 'admin' && $current_page === 'auto_schedule' ? 'active' : '' ?>" href="/pdu_pms_project/public/admin/auto_schedule">
                                         <i class="fas fa-magic me-1"></i>Xếp lịch tự động
                                     </a>
-                                    <a class="dropdown-item <?= $pageRole === 'admin' && $current_page === 'search_rooms' ? 'active' : '' ?>" href="/pdu_pms_project/public/admin/search_rooms">
+                                    <!-- <a class="dropdown-item <?= $pageRole === 'admin' && $current_page === 'search_rooms' ? 'active' : '' ?>" href="/pdu_pms_project/public/admin/search_rooms">
                                         <i class="fas fa-search me-1"></i>Tìm phòng
-                                    </a>
+                                    </a> -->
                                 </ul>
                             </li>
 
