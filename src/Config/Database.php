@@ -5,7 +5,7 @@ namespace Config;
 class Database
 {
     private $host = 'localhost';
-    private $db_name = 'pdu_pms';
+    private $db_name = 'pdu_pms_db';
     private $username = 'root';
     private $password = '';
     private $conn;
