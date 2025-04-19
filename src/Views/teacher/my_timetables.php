@@ -48,9 +48,17 @@ ob_start();
     <!-- Nút tác vụ nhanh -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex flex-wrap gap-2">
-            <a href="/pdu_pms_project/public/teacher/calendar_bookings" class="btn btn-primary">
-                <i class="fas fa-calendar-alt me-1"></i> Xem dạng lịch
-            </a>
+            <div class="btn-group" role="group">
+                <a href="/pdu_pms_project/public/teacher/my_timetables" class="btn btn-primary active">
+                    <i class="fas fa-table me-1"></i> Lịch dạy
+                </a>
+                <a href="/pdu_pms_project/public/teacher/my_bookings" class="btn btn-outline-primary">
+                    <i class="fas fa-bookmark me-1"></i> Đặt phòng
+                </a>
+                <a href="/pdu_pms_project/public/teacher/calendar_bookings" class="btn btn-outline-primary">
+                    <i class="fas fa-calendar-alt me-1"></i> Xem dạng lịch
+                </a>
+            </div>
         </div>
         <button class="btn btn-outline-secondary" id="filterToggle">
             <i class="fas fa-filter me-1"></i> Bộ lọc

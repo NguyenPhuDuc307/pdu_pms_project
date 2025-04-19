@@ -520,13 +520,49 @@ class TeacherController
         // Lấy thông tin phòng
         $room = $this->roomModel->getDetailedRoom($booking['room_id']);
 
-        // Lấy lịch sử hoạt động của đặt phòng
-        $booking_activities = $this->bookingModel->getBookingActivities($id);
-
         return [
             'booking' => $booking,
-            'room' => $room,
-            'booking_activities' => $booking_activities
+            'room' => $room
+        ];
+    }
+
+    // Phương thức xem danh sách đặt phòng của giáo viên
+    public function myBookings($params = [])
+    {
+        if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
+            header('Location: /pdu_pms_project/public/login');
+            exit;
+        }
+
+        $teacher_id = $_SESSION['user_id'];
+        $filters = [];
+
+        // Xử lý các tham số lọc
+        if (isset($params['status']) && !empty($params['status'])) {
+            $filters['status'] = $params['status'];
+        }
+
+        if (isset($params['date_from']) && !empty($params['date_from'])) {
+            $filters['date_from'] = $params['date_from'] . ' 00:00:00';
+        }
+
+        if (isset($params['date_to']) && !empty($params['date_to'])) {
+            $filters['date_to'] = $params['date_to'] . ' 23:59:59';
+        }
+
+        if (isset($params['room_type']) && !empty($params['room_type'])) {
+            $filters['room_type_id'] = $params['room_type'];
+        }
+
+        // Lấy danh sách đặt phòng của giáo viên
+        $bookings = $this->bookingModel->getBookingsByTeacher($teacher_id, $filters);
+
+        // Lấy danh sách loại phòng
+        $room_types = $this->roomModel->getRoomTypes();
+
+        return [
+            'bookings' => $bookings,
+            'room_types' => $room_types
         ];
     }
 

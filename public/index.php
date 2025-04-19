@@ -263,8 +263,8 @@ switch ($uri) {
         break;
     case 'teacher/my_bookings':
         // Thêm route cho xem lịch đặt phòng của giáo viên
-        $data = $teacherController->index(); // Sử dụng index vì đã có dữ liệu bookings trong đó
-        require_once __DIR__ . '/../src/Views/teacher/index.php'; // Sử dụng trang index vì đã có hiển thị bookings
+        $data = $teacherController->myBookings($_GET);
+        require_once __DIR__ . '/../src/Views/teacher/my_bookings.php';
         break;
     case 'teacher/booking_detail':
         // Xem chi tiết đặt phòng của giáo viên

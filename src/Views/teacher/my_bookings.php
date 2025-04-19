@@ -1,6 +1,6 @@
 <?php
-// Đảm bảo chỉ cho student
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'student') {
+// Đảm bảo chỉ cho teacher
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'teacher') {
     header('Location: /pdu_pms_project/public/login');
     exit;
 }
@@ -10,7 +10,7 @@ $pageTitle = "Lịch đặt phòng của tôi";
 $pageSubtitle = "Quản lý tất cả các lịch đặt phòng của bạn";
 $pageIcon = "fas fa-calendar-alt";
 $breadcrumbs = [
-    ['title' => 'Trang chủ', 'link' => '/pdu_pms_project/public/student'],
+    ['title' => 'Trang chủ', 'link' => '/pdu_pms_project/public/teacher'],
     ['title' => 'Lịch đặt phòng của tôi', 'link' => '']
 ];
 
@@ -25,17 +25,19 @@ ob_start();
     <div class="d-flex justify-content-between mb-3">
         <div class="d-flex flex-wrap gap-2">
             <div class="btn-group" role="group">
-                <a href="/pdu_pms_project/public/student/my_bookings" class="btn btn-primary active">
-                    <i class="fas fa-table me-1"></i> Dạng bảng
+                <a href="/pdu_pms_project/public/teacher/my_timetables" class="btn btn-outline-primary">
+                    <i class="fas fa-table me-1"></i> Lịch dạy
                 </a>
-                <a href="/pdu_pms_project/public/student/calendar_bookings" class="btn btn-outline-primary">
+                <a href="/pdu_pms_project/public/teacher/my_bookings" class="btn btn-primary active">
+                    <i class="fas fa-bookmark me-1"></i> Đặt phòng
+                </a>
+                <a href="/pdu_pms_project/public/teacher/calendar_bookings" class="btn btn-outline-primary">
                     <i class="fas fa-calendar-alt me-1"></i> Dạng lịch
                 </a>
             </div>
-
         </div>
         <div>
-            <a href="/pdu_pms_project/public/student/book_room" class="btn btn-primary me-2">
+            <a href="/pdu_pms_project/public/teacher/book_room" class="btn btn-primary me-2">
                 <i class="fas fa-plus-circle me-1"></i> Đặt phòng mới
             </a>
             <button class="btn btn-outline-primary" id="filterToggle">
@@ -65,7 +67,7 @@ ob_start();
         <div class="col-12">
             <div class="card shadow">
                 <div class="card-body">
-                    <form action="/pdu_pms_project/public/student/my_bookings" method="get" class="row g-3">
+                    <form action="/pdu_pms_project/public/teacher/my_bookings" method="get" class="row g-3">
                         <div class="col-md-3">
                             <label for="status" class="form-label">Trạng thái</label>
                             <select class="form-select" id="status" name="status">
@@ -108,8 +110,6 @@ ob_start();
         </div>
     </div>
 
-
-
     <!-- Danh sách lịch đặt phòng -->
     <div class="row">
         <div class="col-12">
@@ -119,7 +119,7 @@ ob_start();
                         <i class="fas fa-calendar-times fa-4x text-muted mb-3"></i>
                         <h5>Không có lịch đặt phòng nào</h5>
                         <p class="text-muted">Bạn chưa có lịch đặt phòng nào trong mục này</p>
-                        <a href="/pdu_pms_project/public/student/book_room" class="btn btn-primary mt-2">
+                        <a href="/pdu_pms_project/public/teacher/book_room" class="btn btn-primary mt-2">
                             <i class="fas fa-plus-circle me-1"></i> Đặt phòng ngay
                         </a>
                     </div>
@@ -184,47 +184,29 @@ ob_start();
                                                 $statusIcon = 'clock';
 
                                                 switch (strtolower($booking['status'])) {
-                                                    case 'pending':
                                                     case 'chờ duyệt':
+                                                    case 'pending':
                                                         $statusClass = 'warning';
                                                         $statusIcon = 'clock';
-                                                        break;
-                                                    case 'approved':
-                                                    case 'được duyệt':
-                                                    case 'đã duyệt':
-                                                        $statusClass = 'success';
-                                                        $statusIcon = 'check-circle';
-                                                        break;
-                                                    case 'rejected':
-                                                    case 'từ chối':
-                                                        $statusClass = 'danger';
-                                                        $statusIcon = 'times-circle';
-                                                        break;
-                                                    case 'cancelled':
-                                                    case 'đã hủy':
-                                                        $statusClass = 'secondary';
-                                                        $statusIcon = 'ban';
-                                                        break;
-                                                }
-
-                                                // Display status text in Vietnamese
-                                                $statusText = '';
-                                                switch (strtolower($booking['status'])) {
-                                                    case 'pending':
-                                                    case 'chờ duyệt':
                                                         $statusText = 'Chờ duyệt';
                                                         break;
-                                                    case 'approved':
                                                     case 'được duyệt':
                                                     case 'đã duyệt':
+                                                    case 'approved':
+                                                        $statusClass = 'success';
+                                                        $statusIcon = 'check-circle';
                                                         $statusText = 'Đã duyệt';
                                                         break;
-                                                    case 'rejected':
                                                     case 'từ chối':
+                                                    case 'rejected':
+                                                        $statusClass = 'danger';
+                                                        $statusIcon = 'times-circle';
                                                         $statusText = 'Từ chối';
                                                         break;
-                                                    case 'cancelled':
                                                     case 'đã hủy':
+                                                    case 'cancelled':
+                                                        $statusClass = 'secondary';
+                                                        $statusIcon = 'ban';
                                                         $statusText = 'Đã hủy';
                                                         break;
                                                     default:
@@ -245,12 +227,12 @@ ob_start();
                                                 </div>
                                             </td>
                                             <td class="text-center">
-                                                <a href="/pdu_pms_project/public/student/booking_detail?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-primary me-1" title="Xem chi tiết">
+                                                <a href="/pdu_pms_project/public/teacher/booking_detail/<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-primary me-1" title="Xem chi tiết">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
 
                                                 <?php if (strtolower($booking['status']) === 'chờ duyệt' || strtolower($booking['status']) === 'pending'): ?>
-                                                    <a href="/pdu_pms_project/public/student/cancel_booking?id=<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-danger cancel-booking" title="Hủy đặt phòng">
+                                                    <a href="/pdu_pms_project/public/teacher/cancel_booking/<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-danger cancel-booking" title="Hủy đặt phòng">
                                                         <i class="fas fa-times"></i>
                                                     </a>
                                                 <?php endif; ?>
@@ -340,8 +322,6 @@ ob_start();
                 });
             });
         }
-
-        // Không còn các nút lọc nhanh
     });
 </script>
 
@@ -350,7 +330,7 @@ ob_start();
 $pageContent = ob_get_clean();
 
 // Set page role
-$pageRole = 'student';
+$pageRole = 'teacher';
 
 // Include the main layout
 include dirname(dirname(__DIR__)) . '/Views/layouts/main_layout.php';

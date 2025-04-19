@@ -52,7 +52,7 @@ class StudentController
         $user = $this->userModel->getUserById($studentId);
 
         // Lấy dữ liệu đặt phòng của học sinh
-        $bookings = $this->bookingModel->getBookingsByStudent($studentId);
+        $bookings = $this->bookingModel->getBookingsByStudent($studentId, []);
 
         // Thống kê đặt phòng
         $totalBookings = count($bookings);
@@ -340,7 +340,7 @@ class StudentController
         $student_id = $_SESSION['user_id']; // Chỉ lấy đặt phòng của sinh viên hiện tại
 
         // Lấy tất cả đặt phòng của sinh viên
-        $bookings = $this->bookingModel->getBookingsByStudent($student_id);
+        $bookings = $this->bookingModel->getBookingsByStudent($student_id, []);
 
         // Lọc theo các tiêu chí
         if ($start && $end) {

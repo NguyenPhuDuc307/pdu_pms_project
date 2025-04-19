@@ -158,29 +158,89 @@ class BookingModel
         return $stmt->fetchColumn();
     }
 
-    public function getBookingsByTeacher($teacherId)
+    public function getBookingsByTeacher($teacherId, $filters = [])
     {
-        $stmt = $this->db->prepare("SELECT b.*, r.name AS room_name,
-            u.full_name AS user_name
+        $query = "SELECT b.*, r.name AS room_name,
+            u.full_name AS user_name,
+            u.role AS user_role
             FROM bookings b
             JOIN rooms r ON b.room_id = r.id
             LEFT JOIN users u ON b.user_id = u.id
-            WHERE b.user_id = ? AND b.status = 'được duyệt' AND u.role = 'teacher'
-            ORDER BY b.start_time ASC");
-        $stmt->execute([$teacherId]);
+            WHERE b.user_id = ? AND u.role = 'teacher'";
+
+        $params = [$teacherId];
+
+        // Thêm điều kiện lọc theo trạng thái
+        if (isset($filters['status']) && !empty($filters['status'])) {
+            $query .= " AND b.status = ?";
+            $params[] = $filters['status'];
+        }
+
+        // Thêm điều kiện lọc theo ngày bắt đầu
+        if (isset($filters['date_from']) && !empty($filters['date_from'])) {
+            $query .= " AND b.start_time >= ?";
+            $params[] = $filters['date_from'];
+        }
+
+        // Thêm điều kiện lọc theo ngày kết thúc
+        if (isset($filters['date_to']) && !empty($filters['date_to'])) {
+            $query .= " AND b.start_time <= ?";
+            $params[] = $filters['date_to'];
+        }
+
+        // Thêm điều kiện lọc theo loại phòng
+        if (isset($filters['room_type_id']) && !empty($filters['room_type_id'])) {
+            $query .= " AND r.room_type_id = ?";
+            $params[] = $filters['room_type_id'];
+        }
+
+        $query .= " ORDER BY b.start_time DESC";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
-    public function getBookingsByStudent($studentId)
+    public function getBookingsByStudent($studentId, $filters = [])
     {
-        $stmt = $this->db->prepare("SELECT b.*, r.name AS room_name,
-            u.full_name AS user_name
+        $query = "SELECT b.*, r.name AS room_name,
+            u.full_name AS user_name,
+            u.role AS user_role
             FROM bookings b
             JOIN rooms r ON b.room_id = r.id
             LEFT JOIN users u ON b.user_id = u.id
-            WHERE b.user_id = ? AND u.role = 'student'
-            ORDER BY b.start_time DESC");
-        $stmt->execute([$studentId]);
+            WHERE b.user_id = ? AND u.role = 'student'";
+
+        $params = [$studentId];
+
+        // Thêm điều kiện lọc theo trạng thái
+        if (isset($filters['status']) && !empty($filters['status'])) {
+            $query .= " AND b.status = ?";
+            $params[] = $filters['status'];
+        }
+
+        // Thêm điều kiện lọc theo ngày bắt đầu
+        if (isset($filters['date_from']) && !empty($filters['date_from'])) {
+            $query .= " AND b.start_time >= ?";
+            $params[] = $filters['date_from'];
+        }
+
+        // Thêm điều kiện lọc theo ngày kết thúc
+        if (isset($filters['date_to']) && !empty($filters['date_to'])) {
+            $query .= " AND b.start_time <= ?";
+            $params[] = $filters['date_to'];
+        }
+
+        // Thêm điều kiện lọc theo loại phòng
+        if (isset($filters['room_type_id']) && !empty($filters['room_type_id'])) {
+            $query .= " AND r.room_type_id = ?";
+            $params[] = $filters['room_type_id'];
+        }
+
+        $query .= " ORDER BY b.start_time DESC";
+
+        $stmt = $this->db->prepare($query);
+        $stmt->execute($params);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
@@ -466,5 +526,23 @@ class BookingModel
         $stmt->execute();
         $result = $stmt->fetch(\PDO::FETCH_ASSOC);
         return $result['count'] ?? 0;
+    }
+
+    /**
+     * Lấy lịch sử hoạt động của đặt phòng
+     * @param int $bookingId ID của đặt phòng
+     * @return array Mảng các hoạt động
+     */
+    public function getBookingActivities($bookingId)
+    {
+        $stmt = $this->db->prepare(
+            "SELECT ba.*, u.full_name as user_name, u.role as user_role
+             FROM booking_activities ba
+             LEFT JOIN users u ON ba.user_id = u.id
+             WHERE ba.booking_id = ?
+             ORDER BY ba.timestamp DESC"
+        );
+        $stmt->execute([$bookingId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 }
