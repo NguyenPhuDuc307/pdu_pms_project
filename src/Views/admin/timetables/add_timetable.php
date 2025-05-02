@@ -90,13 +90,7 @@ ob_start();
                         <!-- Phòng học (tùy chọn) -->
                         <div class="mb-4">
                             <label for="room_id" class="form-label fw-bold"><i class="fas fa-door-open me-2 text-primary"></i>Phòng học (tùy chọn)</label>
-                            <select id="room_id" name="room_id" class="form-select">
-                                <option value="">-- Chọn phòng học (nếu cần) --</option>
-                                <?php foreach ($rooms as $room): ?>
-                                    <option value="<?= $room['id'] ?>"><?= htmlspecialchars($room['name'] . ' (Sức chứa: ' . $room['capacity'] . ')') ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <div class="form-text text-muted">Bạn có thể chọn phòng ngay bây giờ hoặc để sau</div>
+                            <div class="form-text text-muted">Bạn có thể chọn phòng sau khi đã thêm lịch dạy thành công</div>
                         </div>
 
                         <!-- Số lượng học viên -->
@@ -144,17 +138,17 @@ ob_start();
         document.getElementById('start_time').value = startTime.toISOString().slice(0, 16);
         document.getElementById('end_time').value = endTime.toISOString().slice(0, 16);
 
-        // Kiểm tra sức chứa phòng khi chọn phòng
+        // Kiểm tra số máy phòng khi chọn phòng
         const roomSelect = document.getElementById('room_id');
         const participantsInput = document.getElementById('participants');
 
         roomSelect.addEventListener('change', function() {
             if (this.value) {
                 const selectedOption = this.options[this.selectedIndex];
-                const roomCapacity = parseInt(selectedOption.text.match(/Sức chứa: (\d+)/)[1]);
+                const roomCapacity = parseInt(selectedOption.text.match(/Số máy: (\d+)/)[1]);
 
                 if (parseInt(participantsInput.value) > roomCapacity) {
-                    alert(`Số lượng học viên (${participantsInput.value}) vượt quá sức chứa của phòng (${roomCapacity})`);
+                    alert(`Số lượng học viên (${participantsInput.value}) vượt quá số máy của phòng (${roomCapacity})`);
                 }
             }
         });
@@ -177,15 +171,15 @@ ob_start();
                 document.getElementById('end_time').classList.add('is-invalid');
             }
 
-            // Kiểm tra sức chứa phòng khi submit
+            // Kiểm tra số máy phòng khi submit
             const roomId = roomSelect.value;
             if (roomId) {
                 const selectedOption = roomSelect.options[roomSelect.selectedIndex];
-                const roomCapacity = parseInt(selectedOption.text.match(/Sức chứa: (\d+)/)[1]);
+                const roomCapacity = parseInt(selectedOption.text.match(/Số máy: (\d+)/)[1]);
 
                 if (parseInt(participantsInput.value) > roomCapacity) {
                     event.preventDefault();
-                    alert(`Số lượng học viên (${participantsInput.value}) vượt quá sức chứa của phòng (${roomCapacity})`);
+                    alert(`Số lượng học viên (${participantsInput.value}) vượt quá số máy của phòng (${roomCapacity})`);
                 }
             }
 

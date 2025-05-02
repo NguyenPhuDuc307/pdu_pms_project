@@ -155,7 +155,7 @@ PDU PMS là hệ thống quản lý phòng học và tài nguyên toàn diện �
    - **Mô tả:** Giáo viên tìm kiếm phòng học theo tiêu chí
    - **Luồng chính:**
      1. Giáo viên truy cập trang tìm kiếm phòng
-     2. Nhập các tiêu chí tìm kiếm (tên, loại, sức chứa, v.v.)
+     2. Nhập các tiêu chí tìm kiếm (tên, loại, số máy, v.v.)
      3. Hệ thống hiển thị danh sách phòng học phù hợp
 
 2. **Xem Chi Tiết Phòng Học**
@@ -175,7 +175,7 @@ PDU PMS là hệ thống quản lý phòng học và tài nguyên toàn diện �
    - **Luồng chính:**
      1. Giáo viên truy cập trang đề xuất phòng
      2. Chọn thời gian bắt đầu và kết thúc
-     3. Chọn loại phòng và sức chứa (nếu cần)
+     3. Chọn loại phòng và số máy (nếu cần)
      4. Hệ thống hiển thị danh sách phòng trống trong khung giờ đó
 
 4. **Đặt Phòng Học**
@@ -212,7 +212,7 @@ PDU PMS là hệ thống quản lý phòng học và tài nguyên toàn diện �
    - **Mô tả:** Sinh viên tìm kiếm phòng học theo tiêu chí
    - **Luồng chính:**
      1. Sinh viên truy cập trang tìm kiếm phòng
-     2. Nhập các tiêu chí tìm kiếm (tên, loại, sức chứa, v.v.)
+     2. Nhập các tiêu chí tìm kiếm (tên, loại, số máy, v.v.)
      3. Hệ thống hiển thị danh sách phòng học phù hợp
 
 2. **Xem Chi Tiết Phòng Học**
@@ -262,8 +262,8 @@ PDU PMS là hệ thống quản lý phòng học và tài nguyên toàn diện �
 
 ### Quản Lý Phòng Học
 
-- Thêm phòng học mới với thông tin sức chứa và loại phòng
-- Cập nhật thông tin phòng (tên, sức chứa, trạng thái)
+- Thêm phòng học mới với thông tin số máy và loại phòng
+- Cập nhật thông tin phòng (tên, số máy, trạng thái)
 - Xóa phòng học
 - Xem thống kê phòng học (phòng được sử dụng nhiều nhất)
 - Theo dõi trạng thái phòng (trống/đang sử dụng/bảo trì)
@@ -272,7 +272,7 @@ PDU PMS là hệ thống quản lý phòng học và tài nguyên toàn diện �
 
 ### Tìm Kiếm và Đề Xuất Phòng
 
-- Tìm kiếm phòng theo nhiều tiêu chí (tên, loại, sức chứa, vị trí)
+- Tìm kiếm phòng theo nhiều tiêu chí (tên, loại, số máy, vị trí)
 - Đề xuất phòng trống theo khung thời gian cụ thể
 - Xem chi tiết phòng học và danh sách thiết bị
 - Xem lịch sử sử dụng phòng và các lớp học sắp diễn ra
@@ -310,7 +310,7 @@ PDU PMS là hệ thống quản lý phòng học và tài nguyên toàn diện �
 - id (khóa chính)
 - name (số phòng)
 - room_type_id (loại phòng)
-- capacity (sức chứa)
+- capacity (số máy)
 - location (vị trí)
 - description (mô tả)
 - status (trạng thái: trống/đang sử dụng/bảo trì)

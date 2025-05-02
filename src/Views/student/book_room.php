@@ -330,7 +330,7 @@ ob_start();
             });
         }
 
-        // Kiểm tra số người và cảnh báo vượt quá sức chứa
+        // Kiểm tra số người và cảnh báo vượt quá số máy
         const participantsInput = document.getElementById('participants');
         const capacityWarning = document.getElementById('capacity-warning');
 
@@ -343,7 +343,7 @@ ob_start();
                     const participants = parseInt(participantsInput.value);
 
                     if (participants > roomCapacity) {
-                        capacityWarning.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Số người vượt quá sức chứa của phòng (${roomCapacity} người)</span>`;
+                        capacityWarning.innerHTML = `<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Số người vượt quá số máy của phòng (${roomCapacity} người)</span>`;
                     } else {
                         capacityWarning.innerHTML = '';
                     }

@@ -193,7 +193,7 @@ ob_start();
                     </div>
 
                     <div class="mb-3">
-                        <p class="mb-1 text-muted">Sức chứa:</p>
+                        <p class="mb-1 text-muted">Số máy:</p>
                         <p><i class="fas fa-users me-2 text-primary"></i> <?php echo $data['room']['capacity'] ?? 'N/A'; ?> người</p>
                     </div>
 

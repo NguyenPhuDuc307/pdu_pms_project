@@ -289,16 +289,9 @@ ob_start();
                                     <div class="card-body">
                                         <div class="mb-3">
                                             <div class="room-feature">
-                                                <i class="fas fa-chalkboard"></i>
-                                                <div>
-                                                    <div class="small text-muted">Loại phòng</div>
-                                                    <div class="fw-medium"><?= htmlspecialchars($room['room_type_name']) ?></div>
-                                                </div>
-                                            </div>
-                                            <div class="room-feature">
                                                 <i class="fas fa-users"></i>
                                                 <div>
-                                                    <div class="small text-muted">Sức chứa</div>
+                                                    <div class="small text-muted">Số máy</div>
                                                     <div class="room-capacity"><?= intval($room['capacity']) ?> người</div>
                                                 </div>
                                             </div>
@@ -506,16 +499,9 @@ ob_start();
                                 <div class="card-body">
                                     <div class="mb-3">
                                         <div class="room-feature">
-                                            <i class="fas fa-chalkboard"></i>
-                                            <div>
-                                                <div class="small text-muted">Loại phòng</div>
-                                                <div class="fw-medium">${room.room_type_name}</div>
-                                            </div>
-                                        </div>
-                                        <div class="room-feature">
                                             <i class="fas fa-users"></i>
                                             <div>
-                                                <div class="small text-muted">Sức chứa</div>
+                                                <div class="small text-muted">Số máy</div>
                                                 <div class="room-capacity">${room.capacity} người</div>
                                             </div>
                                         </div>

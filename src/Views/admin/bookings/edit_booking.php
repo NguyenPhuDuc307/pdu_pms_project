@@ -157,7 +157,7 @@ ob_start();
                                         class="d-none">
                                     <div class="room-card border rounded p-2 text-center h-100 <?php echo $roomClass; ?> <?php echo isset($_POST['room_id']) ? ($_POST['room_id'] == $room['id'] ? 'room-selected' : '') : ($isCurrentRoom ? 'room-selected' : ''); ?>">
                                         <div class="fw-medium"><?php echo htmlspecialchars($room['name']); ?></div>
-                                        <div class="small text-secondary">Sức chứa: <?php echo htmlspecialchars($room['capacity']); ?></div>
+                                        <div class="small text-secondary">Số máy: <?php echo htmlspecialchars($room['capacity']); ?></div>
                                         <?php
                                         $badgeClass = "mt-1 d-inline-block px-2 py-1 small rounded status-badge";
                                         $badgeText = "";

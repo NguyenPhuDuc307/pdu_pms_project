@@ -57,7 +57,7 @@ ob_start();
 
     <div class="row">
         <!-- Room Form -->
-        <div class="col-xl-8 col-lg-7">
+        <div class="col-xl-12 col-lg-7">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 bg-gradient-primary text-white">
                     <h6 class="m-0 font-weight-bold"><i class="fas fa-door-open me-2"></i>Thông tin phòng</h6>
@@ -77,11 +77,11 @@ ob_start();
 
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label for="capacity" class="form-label fw-bold">Sức chứa <span class="text-danger">*</span></label>
+                                <label for="capacity" class="form-label fw-bold">Số máy <span class="text-danger">*</span></label>
                                 <div class="input-group mb-3">
                                     <span class="input-group-text"><i class="fas fa-users"></i></span>
-                                    <input type="number" class="form-control preview-trigger" id="capacity" name="capacity" placeholder="Số người tối đa" min="1" value="30" required>
-                                    <span class="input-group-text">người</span>
+                                    <input type="number" class="form-control preview-trigger" id="capacity" name="capacity" placeholder="Số máy trong phòng" min="1" value="30" required>
+                                    <span class="input-group-text">máy</span>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -113,95 +113,6 @@ ob_start();
                             </button>
                         </div>
                     </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Information Sidebar -->
-        <div class="col-xl-4 col-lg-5">
-            <!-- Room Preview Card -->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 bg-gradient-success text-white">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-eye me-2"></i>Xem trước phòng</h6>
-                </div>
-                <div class="card-body">
-                    <div class="text-center mb-3">
-                        <div class="preview-room-icon">
-                            <i class="fas fa-door-open fa-3x"></i>
-                        </div>
-                    </div>
-                    <div class="preview-room-details p-3 border rounded">
-                        <h5 id="previewRoomName" class="text-center mb-3">---</h5>
-                        <div class="row mb-2">
-                            <div class="col-6 text-muted">Loại phòng:</div>
-                            <div class="col-6" id="previewRoomType">Phòng thực hành</div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-6 text-muted">Sức chứa:</div>
-                            <div class="col-6" id="previewCapacity">--- người</div>
-                        </div>
-
-                        <div class="row mb-2">
-                            <div class="col-6 text-muted">Trạng thái:</div>
-                            <div class="col-6" id="previewStatus"><span class="badge bg-success">Trống</span></div>
-                        </div>
-
-                        <div class="mt-3">
-                            <div class="text-muted mb-1">Mô tả:</div>
-                            <div id="previewDescription" class="small">---</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Information Card -->
-            <div class="card shadow mb-4 info-card">
-                <div class="card-header py-3 bg-gradient-info text-white">
-                    <h6 class="m-0 font-weight-bold"><i class="fas fa-info-circle me-2"></i>Hướng dẫn</h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-4">
-                        <h5 class="text-info mb-3"><i class="fas fa-lightbulb me-2"></i>Thông tin cần biết</h5>
-                        <div class="info-list">
-                            <div class="info-item">
-                                <div class="info-badge">1</div>
-                                <div class="info-content">
-                                    Các trường có dấu <span class="text-danger fw-bold">*</span> là bắt buộc phải nhập.
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-badge">2</div>
-                                <div class="info-content">
-                                    Phòng mới tạo sẽ mặc định ở trạng thái "Trống".
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h5 class="text-warning mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Lưu ý</h5>
-                        <div class="note-box">
-                            <div class="note-icon">
-                                <i class="fas fa-info"></i>
-                            </div>
-                            <div class="note-content">
-                                <p class="mb-2">Sau khi tạo phòng, bạn có thể quản lý thêm các thông tin:</p>
-                                <ul class="note-list">
-                                    <li><i class="fas fa-calendar-check text-primary me-2"></i>Lịch sử đặt phòng</li>
-                                    <li><i class="fas fa-tools text-primary me-2"></i>Lịch sử bảo trì</li>
-                                    <li><i class="fas fa-tv text-primary me-2"></i>Quản lý thiết bị trong phòng</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="action-buttons">
-                        <a href="/pdu_pms_project/public/admin/manage_rooms" class="btn btn-secondary btn-action">
-                            <i class="fas fa-list me-2"></i> Xem danh sách phòng
-                        </a>
-
-                    </div>
                 </div>
             </div>
         </div>
@@ -487,7 +398,7 @@ ob_start();
             }
 
             if ($('#capacity').val() <= 0) {
-                showValidationError($('#capacity'), 'Sức chứa phải lớn hơn 0');
+                showValidationError($('#capacity'), 'Số máy phải lớn hơn 0');
                 isValid = false;
             }
 
@@ -515,7 +426,7 @@ ob_start();
 
             // Update capacity
             var capacity = $('#capacity').val() || '---';
-            $('#previewCapacity').text(capacity + ' người');
+            $('#previewCapacity').text(capacity + ' máy');
 
             // Update status badge
             var statusText = $('#status option:selected').text();

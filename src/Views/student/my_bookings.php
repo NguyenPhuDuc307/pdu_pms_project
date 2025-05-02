@@ -85,19 +85,6 @@ ob_start();
                             <label for="date_to" class="form-label">Đến ngày</label>
                             <input type="date" class="form-control" id="date_to" name="date_to" value="<?php echo isset($_GET['date_to']) ? $_GET['date_to'] : ''; ?>">
                         </div>
-                        <div class="col-md-3">
-                            <label for="room_type" class="form-label">Loại phòng</label>
-                            <select class="form-select" id="room_type" name="room_type">
-                                <option value="">Tất cả loại phòng</option>
-                                <?php if (isset($data['room_types'])): ?>
-                                    <?php foreach ($data['room_types'] as $type): ?>
-                                        <option value="<?php echo $type['id']; ?>" <?php echo isset($_GET['room_type']) && $_GET['room_type'] == $type['id'] ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($type['name']); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </select>
-                        </div>
                         <div class="col-12 d-flex justify-content-end">
                             <button type="reset" class="btn btn-outline-secondary me-2">Đặt lại</button>
                             <button type="submit" class="btn btn-primary">Áp dụng</button>

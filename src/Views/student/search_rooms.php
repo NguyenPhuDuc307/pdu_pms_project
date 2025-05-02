@@ -33,19 +33,8 @@ ob_start();
                                 <input type="text" class="form-control" id="name" name="name" placeholder="Nhập tên phòng" value="<?php echo isset($data['searchParams']['name']) ? htmlspecialchars($data['searchParams']['name']) : ''; ?>">
                             </div>
                             <div class="col-md-3">
-                                <label for="room_type_id" class="form-label">Loại phòng</label>
-                                <select class="form-select" id="room_type_id" name="room_type_id">
-                                    <option value="">Tất cả loại phòng</option>
-                                    <?php foreach ($data['roomTypes'] as $roomType): ?>
-                                        <option value="<?php echo $roomType['id']; ?>" <?php echo (isset($data['searchParams']['room_type_id']) && $data['searchParams']['room_type_id'] == $roomType['id']) ? 'selected' : ''; ?>>
-                                            <?php echo htmlspecialchars($roomType['name']); ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="min_capacity" class="form-label">Sức chứa tối thiểu</label>
-                                <input type="number" class="form-control" id="min_capacity" name="min_capacity" min="1" placeholder="Nhập sức chứa" value="<?php echo isset($data['searchParams']['min_capacity']) ? htmlspecialchars($data['searchParams']['min_capacity']) : ''; ?>">
+                                <label for="min_capacity" class="form-label">Số máy tối thiểu</label>
+                                <input type="number" class="form-control" id="min_capacity" name="min_capacity" min="1" placeholder="Nhập số máy" value="<?php echo isset($data['searchParams']['min_capacity']) ? htmlspecialchars($data['searchParams']['min_capacity']) : ''; ?>">
                             </div>
                             <div class="col-md-3">
                                 <label for="location" class="form-label">Vị trí</label>
@@ -126,11 +115,7 @@ ob_start();
                                         <div class="card-body">
                                             <ul class="list-group list-group-flush mb-3">
                                                 <li class="list-group-item d-flex justify-content-between">
-                                                    <span><i class="fas fa-tags me-2"></i> Loại phòng:</span>
-                                                    <span class="fw-bold"><?php echo htmlspecialchars($room['room_type_name']); ?></span>
-                                                </li>
-                                                <li class="list-group-item d-flex justify-content-between">
-                                                    <span><i class="fas fa-users me-2"></i> Sức chứa:</span>
+                                                    <span><i class="fas fa-users me-2"></i> Số máy:</span>
                                                     <span class="fw-bold"><?php echo htmlspecialchars($room['capacity']); ?> người</span>
                                                 </li>
                                                 <li class="list-group-item d-flex justify-content-between">

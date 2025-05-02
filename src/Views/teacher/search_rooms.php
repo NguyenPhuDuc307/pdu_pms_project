@@ -36,18 +36,7 @@ ob_start();
                         <input type="text" class="form-control" id="room_name" name="room_name" placeholder="Nhập tên phòng..." value="<?= isset($_GET['room_name']) ? htmlspecialchars($_GET['room_name']) : '' ?>">
                     </div>
                     <div class="col-md-6 col-lg-3">
-                        <label for="room_type" class="form-label">Loại phòng</label>
-                        <select class="form-select" id="room_type" name="room_type">
-                            <option value="">Tất cả loại phòng</option>
-                            <?php foreach ($roomTypes as $type): ?>
-                                <option value="<?= $type['id'] ?>" <?= (isset($_GET['room_type']) && $_GET['room_type'] == $type['id']) ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars($type['name']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
-                    <div class="col-md-6 col-lg-3">
-                        <label for="min_capacity" class="form-label">Sức chứa tối thiểu</label>
+                        <label for="min_capacity" class="form-label">Số máy tối thiểu</label>
                         <input type="number" class="form-control" id="min_capacity" name="min_capacity" min="1" placeholder="Số người" value="<?= isset($_GET['min_capacity']) ? intval($_GET['min_capacity']) : '' ?>">
                     </div>
                     <div class="col-md-6 col-lg-3">
@@ -139,7 +128,7 @@ ob_start();
                             <tr>
                                 <th>Tên phòng</th>
                                 <th>Loại</th>
-                                <th>Sức chứa</th>
+                                <th>Số máy</th>
                                 <th>Vị trí</th>
                                 <th>Trạng thái</th>
                                 <th class="text-end">Thao tác</th>

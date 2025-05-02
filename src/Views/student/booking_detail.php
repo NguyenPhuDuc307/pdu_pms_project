@@ -134,13 +134,9 @@ ob_start();
                                     <?php if (isset($data['booking']['capacity']) && !empty($data['booking']['capacity']) && $data['booking']['capacity'] != 'N/A'): ?>
                                         <p class="mb-1">
                                             <i class="fas fa-user-friends me-2 text-primary"></i>
-                                            Sức chứa: <?php echo htmlspecialchars($data['booking']['capacity']); ?> người
+                                            Số máy: <?php echo htmlspecialchars($data['booking']['capacity']); ?> người
                                         </p>
                                     <?php endif; ?>
-                                    <p class="mb-0">
-                                        <i class="fas fa-tag me-2 text-primary"></i>
-                                        Loại phòng: <strong>Phòng thực hành</strong>
-                                    </p>
                                 </div>
 
                                 <div>

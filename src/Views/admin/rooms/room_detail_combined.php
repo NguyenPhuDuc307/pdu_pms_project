@@ -65,15 +65,9 @@ ob_start();
                                     <td><?= htmlspecialchars($room['id']) ?></td>
                                 </tr>
                                 <tr>
-                                    <th><i class="fas fa-users me-2 text-primary"></i>Sức chứa:</th>
-                                    <td><?= htmlspecialchars($room['capacity']) ?> người</td>
+                                    <th><i class="fas fa-users me-2 text-primary"></i>Số máy:</th>
+                                    <td><?= htmlspecialchars($room['capacity']) ?> máy</td>
                                 </tr>
-                                <?php if (isset($roomType)): ?>
-                                    <tr>
-                                        <th><i class="fas fa-tag me-2 text-primary"></i>Loại phòng:</th>
-                                        <td><?= htmlspecialchars($roomType['name']) ?></td>
-                                    </tr>
-                                <?php endif; ?>
                                 <tr>
                                     <th><i class="fas fa-check-circle me-2 text-primary"></i>Trạng thái:</th>
                                     <td>

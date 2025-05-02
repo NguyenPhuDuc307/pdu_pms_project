@@ -36,7 +36,7 @@ class RoomController
         $end_time = $timetable['end_time'];
         $participants = $timetable['participants'] ?? 0;
 
-        // Lấy danh sách phòng trống và đủ sức chứa
+        // Lấy danh sách phòng trống và đủ số máy
         $rooms = $this->roomModel->getAvailableRoomsByTimeRange($start_time, $end_time, $participants);
 
         // Tìm phòng phù hợp

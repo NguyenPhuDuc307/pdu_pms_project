@@ -12,7 +12,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 
 - Truy cập đường dẫn: `/student/search_rooms`
 - Chức năng:
-  - Tìm kiếm phòng theo tên, loại phòng, sức chứa, vị trí
+  - Tìm kiếm phòng theo tên, loại phòng, số máy, vị trí
   - Chỉ hiển thị phòng có trạng thái "trống"
   - Xem danh sách phòng phù hợp với tiêu chí tìm kiếm
 
@@ -20,7 +20,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 
 - Truy cập đường dẫn: `/student/room_detail/{id}`
 - Chức năng:
-  - Xem thông tin chi tiết về phòng: tên, loại, sức chứa, vị trí, trạng thái
+  - Xem thông tin chi tiết về phòng: tên, loại, số máy, vị trí, trạng thái
   - Xem danh sách thiết bị trong phòng
   - Xem lịch sử dụng phòng và các lớp học sắp diễn ra
 
@@ -38,7 +38,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 
 - Truy cập đường dẫn: `/teacher/search_rooms`
 - Chức năng:
-  - Tìm kiếm phòng theo tên, loại phòng, sức chứa, vị trí
+  - Tìm kiếm phòng theo tên, loại phòng, số máy, vị trí
   - Xem danh sách phòng phù hợp với tiêu chí tìm kiếm
   - Truy cập nhanh đến chức năng đề xuất phòng trống theo thời gian
 
@@ -46,7 +46,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 
 - Truy cập đường dẫn: `/teacher/room_detail/{id}`
 - Chức năng:
-  - Xem thông tin chi tiết về phòng: tên, loại, sức chứa, vị trí, trạng thái
+  - Xem thông tin chi tiết về phòng: tên, loại, số máy, vị trí, trạng thái
   - Xem danh sách thiết bị trong phòng và tình trạng
   - Xem và lựa chọn khung giờ trống để đặt phòng
 
@@ -55,7 +55,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 - Truy cập đường dẫn: `/teacher/suggest_rooms`
 - Chức năng:
   - Chọn khung thời gian cần tìm phòng trống
-  - Chọn loại phòng và sức chứa tối thiểu
+  - Chọn loại phòng và số máy tối thiểu
   - Hệ thống đề xuất danh sách phòng trống phù hợp với yêu cầu
   - Truy cập nhanh đến chức năng đặt phòng
 
@@ -73,7 +73,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 
 - Truy cập đường dẫn: `/admin/search_rooms`
 - Chức năng:
-  - Tìm kiếm phòng theo nhiều tiêu chí: tên, loại, sức chứa, vị trí, trạng thái
+  - Tìm kiếm phòng theo nhiều tiêu chí: tên, loại, số máy, vị trí, trạng thái
   - Thêm, sửa, xóa phòng
   - Quản lý thông tin chi tiết của phòng
   - Truy cập nhanh đến chức năng quản lý loại phòng
@@ -88,8 +88,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
    - Quản trị viên: `/admin/search_rooms`
 2. Điền các tiêu chí tìm kiếm:
    - Tên phòng: nhập từ khóa tìm kiếm
-   - Loại phòng: chọn từ danh sách có sẵn
-   - Sức chứa tối thiểu: nhập số người
+   - Số máy tối thiểu: nhập số người
    - Vị trí: nhập từ khóa vị trí
 3. Nhấn nút "Tìm kiếm" để hiển thị kết quả
 4. Kết quả sẽ hiển thị dưới dạng bảng với các thông tin cơ bản và nút tác vụ
@@ -98,7 +97,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 
 1. Truy cập: `/teacher/suggest_rooms`
 2. Chọn thời gian bắt đầu và kết thúc cần tìm phòng trống
-3. Chọn thêm loại phòng và sức chứa tối thiểu (nếu cần)
+3. Chọn thêm loại phòng và số máy tối thiểu (nếu cần)
 4. Nhấn "Tìm phòng trống" để xem kết quả
 5. Kết quả hiển thị các phòng khả dụng trong khung giờ đã chọn
 
@@ -106,7 +105,7 @@ Hệ thống Quản lý Phòng Thực hành là ứng dụng web cho phép quả
 
 1. Từ trang kết quả tìm kiếm, nhấn vào nút "Chi tiết" của phòng cần xem
 2. Thông tin chi tiết phòng sẽ hiển thị:
-   - Thông tin cơ bản: tên, loại, sức chứa, vị trí, trạng thái
+   - Thông tin cơ bản: tên, loại, số máy, vị trí, trạng thái
    - Danh sách thiết bị trong phòng (nếu có)
    - Lịch sử dụng phòng hoặc lịch sắp tới
    - Đối với giảng viên: hiển thị thêm khung giờ trống để chọn đặt phòng

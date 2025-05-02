@@ -65,10 +65,6 @@ ob_start();
                                     <h6 class="text-uppercase text-muted small fw-bold">Tên phòng</h6>
                                     <p class="fs-5 fw-semibold"><?= htmlspecialchars($room['name']) ?></p>
                                 </div>
-                                <div class="col-md-6">
-                                    <h6 class="text-uppercase text-muted small fw-bold">Loại phòng</h6>
-                                    <p><?= htmlspecialchars($room['room_type_name']) ?></p>
-                                </div>
                             </div>
                             <div class="row mb-4">
                                 <div class="col-md-6">
@@ -79,7 +75,7 @@ ob_start();
                                     </p>
                                 </div>
                                 <div class="col-md-6">
-                                    <h6 class="text-uppercase text-muted small fw-bold">Sức chứa</h6>
+                                    <h6 class="text-uppercase text-muted small fw-bold">Số máy</h6>
                                     <p>
                                         <i class="fas fa-users me-2 text-primary"></i>
                                         <?= intval($room['capacity']) ?> người

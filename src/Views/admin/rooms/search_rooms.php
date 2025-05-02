@@ -43,19 +43,6 @@ ob_start();
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="room_type_id">Loại phòng</label>
-                            <select class="form-control" id="room_type_id" name="room_type_id">
-                                <option value="">Tất cả loại phòng</option>
-                                <?php foreach ($roomTypes as $roomType): ?>
-                                    <option value="<?= $roomType['id'] ?>" <?= (isset($searchParams['room_type_id']) && $searchParams['room_type_id'] == $roomType['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($roomType['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
                             <label for="status">Trạng thái</label>
                             <select class="form-control" id="status" name="status">
                                 <option value="">Tất cả trạng thái</option>
@@ -67,7 +54,7 @@ ob_start();
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="min_capacity">Sức chứa tối thiểu</label>
+                            <label for="min_capacity">Số máy tối thiểu</label>
                             <input type="number" class="form-control" id="min_capacity" name="min_capacity" min="1"
                                 value="<?= isset($searchParams['min_capacity']) ? intval($searchParams['min_capacity']) : '' ?>">
                         </div>
@@ -108,8 +95,7 @@ ob_start();
                         <tr>
                             <th>ID</th>
                             <th>Tên phòng</th>
-                            <th>Loại phòng</th>
-                            <th>Sức chứa</th>
+                            <th>Số máy</th>
                             <th>Vị trí</th>
                             <th>Trạng thái</th>
                             <th>Thao tác</th>
@@ -121,7 +107,6 @@ ob_start();
                                 <tr>
                                     <td><?= $room['id'] ?></td>
                                     <td><?= htmlspecialchars($room['name']) ?></td>
-                                    <td><?= htmlspecialchars($room['room_type_name']) ?></td>
                                     <td><?= intval($room['capacity']) ?> người</td>
                                     <td><?= htmlspecialchars($room['location']) ?></td>
                                     <td>

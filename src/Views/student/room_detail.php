@@ -50,10 +50,6 @@ require_once __DIR__ . '/../layouts/header.php';
                                             <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
                                                 <i class="fas fa-tags text-white"></i>
                                             </div>
-                                            <div>
-                                                <h6 class="mb-0">Loại phòng</h6>
-                                                <p class="mb-0 fw-bold"><?php echo htmlspecialchars($data['room']['room_type_name']); ?></p>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -66,7 +62,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                                 <i class="fas fa-users text-white"></i>
                                             </div>
                                             <div>
-                                                <h6 class="mb-0">Sức chứa</h6>
+                                                <h6 class="mb-0">Số máy</h6>
                                                 <p class="mb-0 fw-bold"><?php echo htmlspecialchars($data['room']['capacity']); ?> người</p>
                                             </div>
                                         </div>
@@ -88,11 +84,7 @@ require_once __DIR__ . '/../layouts/header.php';
                                         <td><?php echo htmlspecialchars($data['room']['name']); ?></td>
                                     </tr>
                                     <tr>
-                                        <th>Loại phòng:</th>
-                                        <td><?php echo htmlspecialchars($data['room']['room_type_name']); ?></td>
-                                    </tr>
-                                    <tr>
-                                        <th>Sức chứa:</th>
+                                        <th>Số máy:</th>
                                         <td><?php echo htmlspecialchars($data['room']['capacity']); ?> người</td>
                                     </tr>
                                     <tr>

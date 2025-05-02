@@ -53,7 +53,7 @@ ob_start();
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label fw-bold"><i class="fas fa-users me-1"></i> Sức chứa</label>
+                            <label class="form-label fw-bold"><i class="fas fa-users me-1"></i> Số máy</label>
                             <input type="number" name="capacity" value="<?php echo $data['room']['capacity']; ?>"
                                 class="form-control rounded-3" required>
                         </div>
@@ -114,16 +114,7 @@ ob_start();
 
                         <div class="row align-items-center py-2 border-bottom">
                             <div class="col-5 text-muted">
-                                <i class="fas fa-layer-group me-1"></i> Loại phòng:
-                            </div>
-                            <div class="col-7 fw-bold" id="preview-roomtype">
-                                Phòng thực hành
-                            </div>
-                        </div>
-
-                        <div class="row align-items-center py-2 border-bottom">
-                            <div class="col-5 text-muted">
-                                <i class="fas fa-users me-1"></i> Sức chứa:
+                                <i class="fas fa-users me-1"></i> Số máy:
                             </div>
                             <div class="col-7 fw-bold" id="preview-capacity">
                                 <?php echo $data['room']['capacity']; ?> người

@@ -80,12 +80,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.room-card').forEach(function(card) {
                 const capacityText = card.querySelector('.card-text');
                 if (capacityText) {
-                    const capacity = parseInt(capacityText.textContent.replace('Sức chứa: ', ''), 10) || 0;
+                    const capacity = parseInt(capacityText.textContent.replace('Số máy: ', ''), 10) || 0;
                     const label = card.closest('label');
                     const input = label.querySelector('input[name="room_id"]');
 
                     if (capacity < participants) {
-                        // Phòng không đủ sức chứa
+                        // Phòng không đủ số máy
                         input.disabled = true;
                         card.classList.add('disabled');
                         card.classList.remove('bg-success', 'bg-opacity-10', 'border-success');
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             badge.classList.add('bg-secondary');
                         }
                     } else if (!input.disabled && !card.classList.contains('bg-warning') && !card.classList.contains('bg-danger')) {
-                        // Phòng đủ sức chứa
+                        // Phòng đủ số máy
                         input.disabled = false;
                         card.classList.remove('disabled');
                         card.classList.remove('bg-secondary', 'bg-opacity-10', 'border-secondary');
@@ -240,7 +240,7 @@ ob_start();
                         </div>
                         <div class="d-flex align-items-center">
                             <div class="bg-secondary bg-opacity-10 border border-secondary rounded me-2" style="width:16px;height:16px;"></div>
-                            <span>Không đủ sức chứa</span>
+                            <span>Không đủ số máy</span>
                         </div>
                     </div>
 
@@ -254,7 +254,7 @@ ob_start();
                         $timetableId = $data['timetable']['id'] ?? null;
 
                         foreach ($data['rooms'] as $room):
-                            // Kiểm tra xem phòng này có đủ sức chứa không
+                            // Kiểm tra xem phòng này có đủ số máy không
                             $hasEnoughCapacity = $room['capacity'] >= $participants;
 
                             // Kiểm tra xem phòng này có phải phòng hiện tại không
@@ -307,7 +307,7 @@ ob_start();
                                     <div class="<?php echo $cardClass; ?>">
                                         <div class="card-body p-2 text-center">
                                             <h6 class="card-title mb-1"><?php echo htmlspecialchars($room['name']); ?></h6>
-                                            <p class="card-text small text-muted mb-2">Sức chứa: <?php echo htmlspecialchars($room['capacity']); ?></p>
+                                            <p class="card-text small text-muted mb-2">Số máy: <?php echo htmlspecialchars($room['capacity']); ?></p>
                                             <span class="<?php echo $badgeClass; ?>"><?php echo $badgeText; ?></span>
                                         </div>
                                     </div>

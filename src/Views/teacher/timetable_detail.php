@@ -69,10 +69,10 @@ ob_start();
                                     <p><?php echo htmlspecialchars($data['timetable']['class_code']); ?></p>
                                 </div>
                                 <?php if (!empty($data['timetable']['description'])): ?>
-                                <div class="mb-3">
-                                    <p class="mb-1 text-muted">Mô tả:</p>
-                                    <p><?php echo htmlspecialchars($data['timetable']['description']); ?></p>
-                                </div>
+                                    <div class="mb-3">
+                                        <p class="mb-1 text-muted">Mô tả:</p>
+                                        <p><?php echo htmlspecialchars($data['timetable']['description']); ?></p>
+                                    </div>
                                 <?php endif; ?>
                             </div>
                             <div class="col-md-6">
@@ -101,10 +101,10 @@ ob_start();
                                     $start = new DateTime($data['timetable']['start_time']);
                                     $end = new DateTime($data['timetable']['end_time']);
                                     $interval = $start->diff($end);
-                                    
+
                                     $hours = $interval->h + ($interval->days * 24);
                                     $minutes = $interval->i;
-                                    
+
                                     $durationText = '';
                                     if ($hours > 0) {
                                         $durationText .= $hours . ' giờ ';
@@ -117,126 +117,126 @@ ob_start();
                                 </div>
                             </div>
                         </div>
-                        
+
                         <?php if (!empty($data['timetable']['notes'])): ?>
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">Ghi chú</h5>
-                            <div class="bg-light p-3 rounded">
-                                <?php echo nl2br(htmlspecialchars($data['timetable']['notes'])); ?>
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Ghi chú</h5>
+                                <div class="bg-light p-3 rounded">
+                                    <?php echo nl2br(htmlspecialchars($data['timetable']['notes'])); ?>
+                                </div>
                             </div>
-                        </div>
                         <?php endif; ?>
-                        
+
                         <?php if (!empty($data['timetable']['booking_id'])): ?>
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">Thông tin đặt phòng</h5>
-                            <p>Lịch dạy này đã được đặt phòng. <a href="/pdu_pms_project/public/teacher/booking_detail/<?php echo $data['timetable']['booking_id']; ?>" class="text-primary">Xem chi tiết đặt phòng</a></p>
-                        </div>
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Thông tin đặt phòng</h5>
+                                <p>Lịch dạy này đã được đặt phòng. <a href="/pdu_pms_project/public/teacher/booking_detail/<?php echo $data['timetable']['booking_id']; ?>" class="text-primary">Xem chi tiết đặt phòng</a></p>
+                            </div>
                         <?php else: ?>
-                        <div class="mb-4">
-                            <h5 class="border-bottom pb-2 mb-3">Đặt phòng</h5>
-                            <p>Lịch dạy này chưa được đặt phòng. Bạn có thể đặt phòng cho lịch dạy này.</p>
-                            <a href="/pdu_pms_project/public/teacher/book_room?timetable_id=<?php echo $data['timetable']['id']; ?>" class="btn btn-primary">
-                                <i class="fas fa-plus-circle me-1"></i> Đặt phòng
-                            </a>
-                        </div>
+                            <div class="mb-4">
+                                <h5 class="border-bottom pb-2 mb-3">Đặt phòng</h5>
+                                <p>Lịch dạy này chưa được đặt phòng. Bạn có thể đặt phòng cho lịch dạy này.</p>
+                                <a href="/pdu_pms_project/public/teacher/book_room?timetable_id=<?php echo $data['timetable']['id']; ?>" class="btn btn-primary">
+                                    <i class="fas fa-plus-circle me-1"></i> Đặt phòng
+                                </a>
+                            </div>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
-            
+
             <div class="col-lg-4">
                 <!-- Thông tin phòng nếu có -->
                 <?php if (isset($data['room']) && $data['room']): ?>
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Thông tin phòng</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="text-center mb-4">
-                            <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                                <i class="fas fa-door-open fa-3x text-primary"></i>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Thông tin phòng</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                                    <i class="fas fa-door-open fa-3x text-primary"></i>
+                                </div>
+                                <h5 class="font-weight-bold"><?php echo htmlspecialchars($data['room']['name']); ?></h5>
                             </div>
-                            <h5 class="font-weight-bold"><?php echo htmlspecialchars($data['room']['name']); ?></h5>
+
+                            <div class="mb-3">
+                                <p class="mb-1 text-muted">Số máy:</p>
+                                <p><i class="fas fa-users me-2 text-primary"></i> <?php echo $data['room']['capacity'] ?? 'N/A'; ?> người</p>
+                            </div>
+
+                            <div class="mb-3">
+                                <p class="mb-1 text-muted">Trạng thái phòng:</p>
+                                <p>
+                                    <?php if (isset($data['room']['status'])): ?>
+                                        <?php
+                                        $roomStatusClass = '';
+                                        $roomStatusText = '';
+
+                                        switch (strtolower($data['room']['status'])) {
+                                            case 'trống':
+                                                $roomStatusClass = 'success';
+                                                $roomStatusText = 'Trống';
+                                                break;
+                                            case 'đang sử dụng':
+                                                $roomStatusClass = 'warning';
+                                                $roomStatusText = 'Đang sử dụng';
+                                                break;
+                                            case 'bảo trì':
+                                                $roomStatusClass = 'danger';
+                                                $roomStatusText = 'Đang bảo trì';
+                                                break;
+                                            default:
+                                                $roomStatusClass = 'secondary';
+                                                $roomStatusText = $data['room']['status'];
+                                        }
+                                        ?>
+                                        <span class="badge bg-<?php echo $roomStatusClass; ?>"><?php echo $roomStatusText; ?></span>
+                                    <?php else: ?>
+                                        <span class="badge bg-secondary">Không xác định</span>
+                                    <?php endif; ?>
+                                </p>
+                            </div>
+
+                            <?php if (isset($data['room']['equipment']) && !empty($data['room']['equipment'])): ?>
+                                <div class="mb-3">
+                                    <p class="mb-1 text-muted">Thiết bị:</p>
+                                    <ul class="list-group list-group-flush">
+                                        <?php foreach ($data['room']['equipment'] as $equipment): ?>
+                                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                                <span><?php echo htmlspecialchars($equipment['name']); ?></span>
+                                                <span class="badge bg-primary rounded-pill"><?php echo $equipment['quantity']; ?></span>
+                                            </li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </div>
+                            <?php endif; ?>
+
+                            <div class="mt-3">
+                                <a href="/pdu_pms_project/public/teacher/room_detail/<?php echo $data['room']['id']; ?>" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-info-circle me-1"></i> Xem chi tiết phòng
+                                </a>
+                            </div>
                         </div>
-                        
-                        <div class="mb-3">
-                            <p class="mb-1 text-muted">Sức chứa:</p>
-                            <p><i class="fas fa-users me-2 text-primary"></i> <?php echo $data['room']['capacity'] ?? 'N/A'; ?> người</p>
+                    </div>
+                <?php else: ?>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Thông tin phòng</h6>
                         </div>
-                        
-                        <div class="mb-3">
-                            <p class="mb-1 text-muted">Trạng thái phòng:</p>
-                            <p>
-                                <?php if (isset($data['room']['status'])): ?>
-                                    <?php
-                                    $roomStatusClass = '';
-                                    $roomStatusText = '';
-                                    
-                                    switch (strtolower($data['room']['status'])) {
-                                        case 'trống':
-                                            $roomStatusClass = 'success';
-                                            $roomStatusText = 'Trống';
-                                            break;
-                                        case 'đang sử dụng':
-                                            $roomStatusClass = 'warning';
-                                            $roomStatusText = 'Đang sử dụng';
-                                            break;
-                                        case 'bảo trì':
-                                            $roomStatusClass = 'danger';
-                                            $roomStatusText = 'Đang bảo trì';
-                                            break;
-                                        default:
-                                            $roomStatusClass = 'secondary';
-                                            $roomStatusText = $data['room']['status'];
-                                    }
-                                    ?>
-                                    <span class="badge bg-<?php echo $roomStatusClass; ?>"><?php echo $roomStatusText; ?></span>
-                                <?php else: ?>
-                                    <span class="badge bg-secondary">Không xác định</span>
-                                <?php endif; ?>
-                            </p>
-                        </div>
-                        
-                        <?php if (isset($data['room']['equipment']) && !empty($data['room']['equipment'])): ?>
-                        <div class="mb-3">
-                            <p class="mb-1 text-muted">Thiết bị:</p>
-                            <ul class="list-group list-group-flush">
-                                <?php foreach ($data['room']['equipment'] as $equipment): ?>
-                                <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
-                                    <span><?php echo htmlspecialchars($equipment['name']); ?></span>
-                                    <span class="badge bg-primary rounded-pill"><?php echo $equipment['quantity']; ?></span>
-                                </li>
-                                <?php endforeach; ?>
-                            </ul>
-                        </div>
-                        <?php endif; ?>
-                        
-                        <div class="mt-3">
-                            <a href="/pdu_pms_project/public/teacher/room_detail/<?php echo $data['room']['id']; ?>" class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-info-circle me-1"></i> Xem chi tiết phòng
+                        <div class="card-body text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-exclamation-circle fa-3x text-warning"></i>
+                            </div>
+                            <h5>Chưa có phòng được đặt</h5>
+                            <p class="text-muted">Lịch dạy này chưa được đặt phòng</p>
+                            <a href="/pdu_pms_project/public/teacher/book_room?timetable_id=<?php echo $data['timetable']['id']; ?>" class="btn btn-primary mt-3">
+                                <i class="fas fa-plus-circle me-1"></i> Đặt phòng ngay
                             </a>
                         </div>
                     </div>
-                </div>
-                <?php else: ?>
-                <div class="card shadow mb-4">
-                    <div class="card-header py-3">
-                        <h6 class="m-0 font-weight-bold text-primary">Thông tin phòng</h6>
-                    </div>
-                    <div class="card-body text-center py-5">
-                        <div class="mb-3">
-                            <i class="fas fa-exclamation-circle fa-3x text-warning"></i>
-                        </div>
-                        <h5>Chưa có phòng được đặt</h5>
-                        <p class="text-muted">Lịch dạy này chưa được đặt phòng</p>
-                        <a href="/pdu_pms_project/public/teacher/book_room?timetable_id=<?php echo $data['timetable']['id']; ?>" class="btn btn-primary mt-3">
-                            <i class="fas fa-plus-circle me-1"></i> Đặt phòng ngay
-                        </a>
-                    </div>
-                </div>
                 <?php endif; ?>
-                
+
                 <!-- Thông tin hỗ trợ -->
                 <div class="card shadow">
                     <div class="card-header py-3">

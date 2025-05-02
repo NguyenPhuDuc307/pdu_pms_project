@@ -49,20 +49,7 @@ ob_start();
                     </div>
                     <div class="col-md-3">
                         <div class="form-group">
-                            <label for="room_type_id" class="form-label">Loại phòng</label>
-                            <select class="form-select" id="room_type_id" name="room_type_id">
-                                <option value="">Tất cả loại phòng</option>
-                                <?php foreach ($roomTypes as $roomType): ?>
-                                    <option value="<?= $roomType['id'] ?>" <?= (isset($searchParams['room_type_id']) && $searchParams['room_type_id'] == $roomType['id']) ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars($roomType['name']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label for="min_capacity" class="form-label">Sức chứa tối thiểu</label>
+                            <label for="min_capacity" class="form-label">Số máy tối thiểu</label>
                             <input type="number" class="form-control" id="min_capacity" name="min_capacity" min="1"
                                 value="<?= isset($searchParams['min_capacity']) ? intval($searchParams['min_capacity']) : '' ?>">
                         </div>
@@ -91,7 +78,7 @@ ob_start();
                     đến
                     <strong><?= date('H:i d/m/Y', strtotime($searchParams['end_time'])) ?></strong>
                     <?php if (isset($searchParams['min_capacity']) && !empty($searchParams['min_capacity'])): ?>
-                        , sức chứa tối thiểu: <strong><?= intval($searchParams['min_capacity']) ?> người</strong>
+                        , số máy tối thiểu: <strong><?= intval($searchParams['min_capacity']) ?> người</strong>
                     <?php endif; ?>
                 </div>
             <?php endif; ?>
@@ -106,9 +93,8 @@ ob_start();
                                 </div>
                                 <div class="card-body">
                                     <p class="card-text">
-                                        <strong>Loại phòng:</strong> <?= htmlspecialchars($room['room_type_name']) ?><br>
                                         <strong>Vị trí:</strong> <?= htmlspecialchars($room['location']) ?><br>
-                                        <strong>Sức chứa:</strong> <?= intval($room['capacity']) ?> người<br>
+                                        <strong>Số máy:</strong> <?= intval($room['capacity']) ?> người<br>
                                         <strong>Trạng thái:</strong>
                                         <span class="badge bg-success">Trống</span>
                                     </p>

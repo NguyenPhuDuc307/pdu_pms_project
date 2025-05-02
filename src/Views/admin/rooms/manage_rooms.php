@@ -173,8 +173,7 @@ ob_start();
                         <tr>
                             <th>ID</th>
                             <th>Tên phòng</th>
-                            <th>Loại phòng</th>
-                            <th>Sức chứa</th>
+                            <th>Số máy</th>
 
                             <th>Trạng thái</th>
                             <th>Thao tác</th>
@@ -192,11 +191,6 @@ ob_start();
                                             </div>
                                             <strong><?= htmlspecialchars($room['name'] ?? '') ?></strong>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">
-                                            Phòng thực hành
-                                        </span>
                                     </td>
                                     <td><i class="fas fa-users me-1 text-muted"></i> <?= ($room['capacity'] ?? 0) ?> người</td>
 

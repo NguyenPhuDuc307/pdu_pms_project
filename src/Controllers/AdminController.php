@@ -560,11 +560,11 @@ class AdminController
                 }
             }
 
-            // Kiểm tra sức chứa của phòng
+            // Kiểm tra số máy của phòng
             if ($room_id) {
                 $room = $this->roomModel->getRoomById($room_id);
                 if ($room && $participants > $room['capacity']) {
-                    $errors[] = "Phòng {$room['name']} chỉ có sức chứa {$room['capacity']} người, không đủ cho {$participants} sinh viên.";
+                    $errors[] = "Phòng {$room['name']} chỉ có số máy {$room['capacity']} người, không đủ cho {$participants} sinh viên.";
                 }
             }
 
