@@ -207,4 +207,54 @@ class MaintenanceRequestModel
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
+    
+    // Lấy thống kê yêu cầu bảo trì theo tháng
+    public function getMonthlyStats($year = null)
+    {
+        if ($year === null) {
+            $year = date('Y'); // Mặc định là năm hiện tại
+        }
+        
+        $stmt = $this->db->prepare("
+            SELECT 
+                MONTH(created_at) as month,
+                COUNT(*) as total_count,
+                SUM(CASE WHEN status = 'đang chờ' THEN 1 ELSE 0 END) as pending_count,
+                SUM(CASE WHEN status = 'đang xử lý' THEN 1 ELSE 0 END) as in_progress_count,
+                SUM(CASE WHEN status = 'đã xử lý' THEN 1 ELSE 0 END) as completed_count,
+                SUM(CASE WHEN status = 'từ chối' THEN 1 ELSE 0 END) as rejected_count,
+                SUM(CASE WHEN priority = 'khẩn cấp' THEN 1 ELSE 0 END) as urgent_count,
+                SUM(CASE WHEN priority = 'cao' THEN 1 ELSE 0 END) as high_count,
+                SUM(CASE WHEN priority = 'trung bình' THEN 1 ELSE 0 END) as medium_count,
+                SUM(CASE WHEN priority = 'thấp' THEN 1 ELSE 0 END) as low_count
+            FROM maintenance_requests
+            WHERE YEAR(created_at) = ?
+            GROUP BY MONTH(created_at)
+            ORDER BY month ASC
+        ");
+        
+        $stmt->execute([$year]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+    
+    // Lấy thống kê so sánh giữa các tháng gần đây (thường là 6 tháng gần nhất)
+    public function getRecentMonthlyComparison($monthsCount = 6)
+    {
+        $stmt = $this->db->prepare("
+            SELECT 
+                DATE_FORMAT(created_at, '%Y-%m') as month_year,
+                COUNT(*) as total_count,
+                SUM(CASE WHEN status = 'đang chờ' THEN 1 ELSE 0 END) as pending_count,
+                SUM(CASE WHEN status = 'đang xử lý' THEN 1 ELSE 0 END) as in_progress_count,
+                SUM(CASE WHEN status = 'đã xử lý' THEN 1 ELSE 0 END) as completed_count,
+                SUM(CASE WHEN status = 'từ chối' THEN 1 ELSE 0 END) as rejected_count
+            FROM maintenance_requests
+            WHERE created_at >= DATE_SUB(LAST_DAY(NOW()), INTERVAL ? MONTH)
+            GROUP BY DATE_FORMAT(created_at, '%Y-%m')
+            ORDER BY month_year ASC
+        ");
+        
+        $stmt->execute([$monthsCount]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

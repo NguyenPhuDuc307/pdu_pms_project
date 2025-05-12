@@ -126,6 +126,116 @@ ob_start();
         </div>
     </div>
 
+    <!-- Thống kê so sánh theo tháng -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Thống kê yêu cầu bảo trì theo tháng</h6>
+            <div>
+                <select id="chartTypeSelector" class="form-select form-select-sm d-inline-block w-auto me-2">
+                    <option value="bar">Biểu đồ cột</option>
+                    <option value="line">Biểu đồ đường</option>
+                    <option value="doughnut">Biểu đồ tròn</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-area mb-4">
+                <canvas id="maintenanceMonthlyChart" style="min-height: 300px;"></canvas>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="maintenanceMonthlyTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tháng</th>
+                            <th>Tổng số</th>
+                            <th>Đang chờ</th>
+                            <th>Đang xử lý</th>
+                            <th>Hoàn thành</th>
+                            <th>Từ chối</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (isset($data['monthly_comparison']) && count($data['monthly_comparison']) > 0): ?>
+                            <?php foreach($data['monthly_comparison'] as $monthly): ?>
+                                <?php 
+                                    $monthYear = explode('-', $monthly['month_year']);
+                                    $monthName = date('m/Y', strtotime($monthly['month_year'] . '-01'));
+                                ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($monthName) ?></td>
+                                    <td><?= htmlspecialchars($monthly['total_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['pending_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['in_progress_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['completed_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['rejected_count']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="text-center">Không có dữ liệu thống kê</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Thống kê so sánh theo tháng -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Thống kê yêu cầu bảo trì theo tháng</h6>
+            <div>
+                <select id="chartTypeSelector" class="form-select form-select-sm d-inline-block w-auto me-2">
+                    <option value="bar">Biểu đồ cột</option>
+                    <option value="line">Biểu đồ đường</option>
+                    <option value="doughnut">Biểu đồ tròn</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="chart-area mb-4">
+                <canvas id="maintenanceMonthlyChart" style="min-height: 300px;"></canvas>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover" id="maintenanceMonthlyTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Tháng</th>
+                            <th>Tổng số</th>
+                            <th>Đang chờ</th>
+                            <th>Đang xử lý</th>
+                            <th>Hoàn thành</th>
+                            <th>Từ chối</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (isset($data['monthly_comparison']) && count($data['monthly_comparison']) > 0): ?>
+                            <?php foreach($data['monthly_comparison'] as $monthly): ?>
+                                <?php 
+                                    $monthYear = explode('-', $monthly['month_year']);
+                                    $monthName = date('m/Y', strtotime($monthly['month_year'] . '-01'));
+                                ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($monthName) ?></td>
+                                    <td><?= htmlspecialchars($monthly['total_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['pending_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['in_progress_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['completed_count']) ?></td>
+                                    <td><?= htmlspecialchars($monthly['rejected_count']) ?></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="6" class="text-center">Không có dữ liệu thống kê</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <!-- Danh sách yêu cầu bảo trì -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
@@ -328,6 +438,240 @@ ob_start();
             });
         }
     });
+</script>
+
+<script>
+// Monthly maintenance chart initialization
+document.addEventListener('DOMContentLoaded', function() {
+    // Chart configuration
+    initializeMaintenanceMonthlyChart();
+    
+    // Handle chart type change
+    document.getElementById('chartTypeSelector').addEventListener('change', function() {
+        initializeMaintenanceMonthlyChart(this.value);
+    });
+});
+
+// Function to initialize the maintenance monthly chart
+function initializeMaintenanceMonthlyChart(chartType = 'bar') {
+    const ctx = document.getElementById('maintenanceMonthlyChart').getContext('2d');
+    
+    // Check if chart already exists and destroy it
+    if (window.maintenanceChart) {
+        window.maintenanceChart.destroy();
+    }
+    
+    // Prepare data from PHP
+    <?php if (isset($data['monthly_comparison']) && count($data['monthly_comparison']) > 0): ?>
+        const labels = [<?php 
+            $labelOutput = [];
+            foreach($data['monthly_comparison'] as $monthly) {
+                $monthYear = explode('-', $monthly['month_year']);
+                $monthName = date('m/Y', strtotime($monthly['month_year'] . '-01'));
+                $labelOutput[] = "'" . $monthName . "'";
+            }
+            echo implode(', ', $labelOutput);
+        ?>];
+        
+        const totalData = [<?php 
+            $dataOutput = [];
+            foreach($data['monthly_comparison'] as $monthly) {
+                $dataOutput[] = $monthly['total_count'];
+            }
+            echo implode(', ', $dataOutput);
+        ?>];
+        
+        const pendingData = [<?php 
+            $dataOutput = [];
+            foreach($data['monthly_comparison'] as $monthly) {
+                $dataOutput[] = $monthly['pending_count'];
+            }
+            echo implode(', ', $dataOutput);
+        ?>];
+        
+        const inProgressData = [<?php 
+            $dataOutput = [];
+            foreach($data['monthly_comparison'] as $monthly) {
+                $dataOutput[] = $monthly['in_progress_count'];
+            }
+            echo implode(', ', $dataOutput);
+        ?>];
+        
+        const completedData = [<?php 
+            $dataOutput = [];
+            foreach($data['monthly_comparison'] as $monthly) {
+                $dataOutput[] = $monthly['completed_count'];
+            }
+            echo implode(', ', $dataOutput);
+        ?>];
+        
+        const rejectedData = [<?php 
+            $dataOutput = [];
+            foreach($data['monthly_comparison'] as $monthly) {
+                $dataOutput[] = $monthly['rejected_count'];
+            }
+            echo implode(', ', $dataOutput);
+        ?>];
+    <?php else: ?>
+        const labels = [];
+        const totalData = [];
+        const pendingData = [];
+        const inProgressData = [];
+        const completedData = [];
+        const rejectedData = [];
+    <?php endif; ?>
+    
+    // Create chart datasets
+    const datasets = [];
+    
+    if (chartType === 'doughnut') {
+        // For doughnut/pie charts, we need a different data structure
+        datasets.push({
+            label: 'Tổng số',
+            data: totalData.reduce((sum, val) => sum + parseInt(val), 0),
+            backgroundColor: 'rgba(78, 115, 223, 0.8)',
+            borderColor: 'rgba(78, 115, 223, 1)',
+            borderWidth: 1
+        });
+        
+        // More meaningful to show status distribution in a doughnut chart
+        const totalCounts = {
+            'Đang chờ': pendingData.reduce((sum, val) => sum + parseInt(val), 0),
+            'Đang xử lý': inProgressData.reduce((sum, val) => sum + parseInt(val), 0),
+            'Hoàn thành': completedData.reduce((sum, val) => sum + parseInt(val), 0),
+            'Từ chối': rejectedData.reduce((sum, val) => sum + parseInt(val), 0)
+        };
+        
+        // Convert to chart format
+        const doughnutLabels = Object.keys(totalCounts);
+        const doughnutData = Object.values(totalCounts);
+        const doughnutColors = [
+            'rgba(255, 193, 7, 0.8)',   // warning - yellow
+            'rgba(23, 162, 184, 0.8)',  // info - blue
+            'rgba(40, 167, 69, 0.8)',   // success - green
+            'rgba(220, 53, 69, 0.8)'    // danger - red
+        ];
+        
+        // Create new chart
+        window.maintenanceChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: doughnutLabels,
+                datasets: [{
+                    data: doughnutData,
+                    backgroundColor: doughnutColors,
+                    borderColor: doughnutColors.map(color => color.replace('0.8', '1')),
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Phân bổ trạng thái yêu cầu bảo trì'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        // For bar and line charts
+        datasets.push({
+            label: 'Tổng số',
+            data: totalData,
+            backgroundColor: 'rgba(78, 115, 223, 0.8)',
+            borderColor: 'rgba(78, 115, 223, 1)',
+            borderWidth: 1,
+            tension: 0.4,
+            fill: chartType === 'line' ? false : true
+        });
+        
+        datasets.push({
+            label: 'Đang chờ',
+            data: pendingData,
+            backgroundColor: 'rgba(255, 193, 7, 0.8)',
+            borderColor: 'rgba(255, 193, 7, 1)',
+            borderWidth: 1,
+            tension: 0.4,
+            fill: chartType === 'line' ? false : true
+        });
+        
+        datasets.push({
+            label: 'Đang xử lý',
+            data: inProgressData,
+            backgroundColor: 'rgba(23, 162, 184, 0.8)',
+            borderColor: 'rgba(23, 162, 184, 1)',
+            borderWidth: 1,
+            tension: 0.4,
+            fill: chartType === 'line' ? false : true
+        });
+        
+        datasets.push({
+            label: 'Hoàn thành',
+            data: completedData,
+            backgroundColor: 'rgba(40, 167, 69, 0.8)',
+            borderColor: 'rgba(40, 167, 69, 1)',
+            borderWidth: 1,
+            tension: 0.4,
+            fill: chartType === 'line' ? false : true
+        });
+        
+        datasets.push({
+            label: 'Từ chối',
+            data: rejectedData,
+            backgroundColor: 'rgba(220, 53, 69, 0.8)',
+            borderColor: 'rgba(220, 53, 69, 1)',
+            borderWidth: 1,
+            tension: 0.4,
+            fill: chartType === 'line' ? false : true
+        });
+        
+        // Create new chart
+        window.maintenanceChart = new Chart(ctx, {
+            type: chartType,
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'So sánh yêu cầu bảo trì theo tháng'
+                    }
+                }
+            }
+        });
+    }
+}
 </script>
 
 <?php

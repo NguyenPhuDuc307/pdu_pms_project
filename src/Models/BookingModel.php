@@ -98,8 +98,9 @@ class BookingModel
         error_log("BookingModel::checkBookingConflict - Tham số đầu vào: roomId=$roomId, startTime=$startTime, endTime=$endTime, bookingId=$bookingId");
 
         // Kiểm tra xem có booking nào xung đột với khoảng thời gian này không
+        // Chỉ kiểm tra các booking đã được duyệt, bỏ qua các booking đang chờ duyệt
         $query = "SELECT id, start_time, end_time FROM bookings
-              WHERE room_id = ? AND status IN ('được duyệt', 'đã duyệt', 'chờ duyệt')
+              WHERE room_id = ? AND status IN ('được duyệt', 'đã duyệt', 'approved') 
               AND (
                   (start_time <= ? AND end_time > ?) OR  -- Booking hiện tại bắt đầu trong khoảng thời gian của booking khác
                   (start_time < ? AND end_time >= ?) OR  -- Booking hiện tại kết thúc trong khoảng thời gian của booking khác

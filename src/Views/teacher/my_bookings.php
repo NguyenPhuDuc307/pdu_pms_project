@@ -218,7 +218,7 @@ ob_start();
                                                     <i class="fas fa-eye"></i>
                                                 </a>
 
-                                                <?php if (strtolower($booking['status']) === 'chờ duyệt' || strtolower($booking['status']) === 'pending'): ?>
+                                                <?php if (strtolower($booking['status']) === 'chờ duyệt' || strtolower($booking['status']) === 'pending' || strtolower($booking['status']) === 'được duyệt' || strtolower($booking['status']) === 'approved'): ?>
                                                     <a href="/pdu_pms_project/public/teacher/cancel_booking/<?php echo $booking['id']; ?>" class="btn btn-sm btn-outline-danger cancel-booking" title="Hủy đặt phòng">
                                                         <i class="fas fa-times"></i>
                                                     </a>
@@ -303,7 +303,16 @@ ob_start();
         if (cancelButtons) {
             cancelButtons.forEach(button => {
                 button.addEventListener('click', function(e) {
-                    if (!confirm('Bạn có chắc chắn muốn hủy đặt phòng này không?')) {
+                    // Kiểm tra xem phòng đã được duyệt hay chưa
+                    const statusBadge = this.closest('tr').querySelector('.badge');
+                    const isApproved = statusBadge && (statusBadge.textContent.trim() === 'Được duyệt');
+                    
+                    let confirmMessage = 'Bạn có chắc chắn muốn hủy đặt phòng này không?';
+                    if (isApproved) {
+                        confirmMessage = 'Phòng này đã được duyệt. Việc hủy sẽ thông báo đến quản trị viên. Bạn có chắc chắn muốn hủy không?';
+                    }
+                    
+                    if (!confirm(confirmMessage)) {
                         e.preventDefault();
                     }
                 });

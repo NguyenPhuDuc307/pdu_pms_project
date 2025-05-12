@@ -45,6 +45,12 @@ class MaintenanceController
         $resolved_count = count($this->maintenanceRequestModel->getRequestsByStatus('đã xử lý'));
         $rejected_count = count($this->maintenanceRequestModel->getRequestsByStatus('từ chối'));
 
+        // Lấy thống kê theo tháng cho năm hiện tại
+        $monthlyStats = $this->maintenanceRequestModel->getMonthlyStats();
+        
+        // Lấy thống kê so sánh các tháng gần đây
+        $monthlyComparison = $this->maintenanceRequestModel->getRecentMonthlyComparison();
+        
         return [
             'requests' => $requests,
             'current_status' => $status,
@@ -52,7 +58,9 @@ class MaintenanceController
             'processing_count' => $processing_count,
             'resolved_count' => $resolved_count,
             'rejected_count' => $rejected_count,
-            'urgent_requests' => $this->maintenanceRequestModel->getUrgentRequests()
+            'urgent_requests' => $this->maintenanceRequestModel->getUrgentRequests(),
+            'monthly_stats' => $monthlyStats,
+            'monthly_comparison' => $monthlyComparison
         ];
     }
 

@@ -759,10 +759,11 @@ class AdminController
         // Lấy tất cả đặt phòng
         $bookings = $this->bookingModel->getAllBookings();
 
-        // Lọc theo các tiêu chí
+        // Lọc theo các tiêu chí - sửa để hiển thị các sự kiện giao với khoảng thời gian đang xem
         if ($start && $end) {
             $bookings = array_filter($bookings, function ($booking) use ($start, $end) {
-                return $booking['start_time'] >= $start && $booking['end_time'] <= $end;
+                // Hiển thị các sự kiện có bất kỳ phần giao nào với khoảng thời gian đang xem
+                return !(($booking['end_time'] < $start) || ($booking['start_time'] > $end));
             });
         }
 

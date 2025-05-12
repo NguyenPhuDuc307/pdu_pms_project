@@ -352,7 +352,7 @@ class RoomModel
                     WHERE ((b.start_time <= ? AND b.end_time > ?)
                        OR (b.start_time < ? AND b.end_time >= ?)
                        OR (b.start_time >= ? AND b.end_time <= ?))
-                    AND b.status IN ('đã duyệt', 'chờ duyệt')
+                    AND b.status IN ('đã duyệt', 'được duyệt', 'approved')
                 )";
 
         $binds[] = $endTime;
