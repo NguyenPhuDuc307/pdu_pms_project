@@ -181,61 +181,6 @@ ob_start();
         </div>
     </div>
 
-    <!-- Thống kê so sánh theo tháng -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Thống kê yêu cầu bảo trì theo tháng</h6>
-            <div>
-                <select id="chartTypeSelector" class="form-select form-select-sm d-inline-block w-auto me-2">
-                    <option value="bar">Biểu đồ cột</option>
-                    <option value="line">Biểu đồ đường</option>
-                    <option value="doughnut">Biểu đồ tròn</option>
-                </select>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="chart-area mb-4">
-                <canvas id="maintenanceMonthlyChart" style="min-height: 300px;"></canvas>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="maintenanceMonthlyTable">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Tháng</th>
-                            <th>Tổng số</th>
-                            <th>Đang chờ</th>
-                            <th>Đang xử lý</th>
-                            <th>Hoàn thành</th>
-                            <th>Từ chối</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (isset($data['monthly_comparison']) && count($data['monthly_comparison']) > 0): ?>
-                            <?php foreach($data['monthly_comparison'] as $monthly): ?>
-                                <?php 
-                                    $monthYear = explode('-', $monthly['month_year']);
-                                    $monthName = date('m/Y', strtotime($monthly['month_year'] . '-01'));
-                                ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($monthName) ?></td>
-                                    <td><?= htmlspecialchars($monthly['total_count']) ?></td>
-                                    <td><?= htmlspecialchars($monthly['pending_count']) ?></td>
-                                    <td><?= htmlspecialchars($monthly['in_progress_count']) ?></td>
-                                    <td><?= htmlspecialchars($monthly['completed_count']) ?></td>
-                                    <td><?= htmlspecialchars($monthly['rejected_count']) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="6" class="text-center">Không có dữ liệu thống kê</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
     <!-- Danh sách yêu cầu bảo trì -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
